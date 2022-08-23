@@ -3,8 +3,10 @@
 I use a modified floatrules patch that allows setting floats for X, Y, W and H values that are interpreted as percentages of screen space.
 The SGR patch allows my sb-status scripts to use colors and show larger NerdFonts icons.
 
+If you use an American keyboard, do `mv configAMERICAN.h config.h` before installing
+
 ## Todo
-- [ ] Add Keybind Reference
+- [ ] Add Keybind Reference (read config.h for now)
 
 ## Patches
 - [Actual Fullscreen](https://dwm.suckless.org/patches/actualfullscreen/dwm-actualfullscreen-20211013-cb3f58a.diff)
