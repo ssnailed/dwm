@@ -176,8 +176,8 @@
 	    { MODKEY,              XK_F10,             spawn,              {.v = (const char *[]){"dmenuumount", NULL}} },
 	  /*{ MODKEY,              XK_F11,             spawn,              {.v = (const char *[]){NULL}} },*/
 	    { MODKEY,              XK_F12,             spawn,              {.v = (const char *[]){"remaps", NULL}} },
-	    { MODKEY,              XK_asciicircum,     spawn,              {.v = (const char *[]){"dmenuunicode", NULL}} },
-	  /*{ MODKEY | ShiftMask,  XK_asciicircum,     spawn,              {.v = (const char *[]){NULL}} },*/
+	    { MODKEY,              XK_grave,     spawn,              {.v = (const char *[]){"dmenuunicode", NULL}} },
+	  /*{ MODKEY | ShiftMask,  XK_grave,     spawn,              {.v = (const char *[]){NULL}} },*/
 	    TAGKEYS(               XK_1,                                   0)
 	    TAGKEYS(               XK_2,                                   1)
 	    TAGKEYS(               XK_3,                                   2)
@@ -189,10 +189,10 @@
 	    TAGKEYS(               XK_9,                                   8)
 	    { MODKEY,              XK_0,               view,               {.ui = ~0} },
 	    { MODKEY | ShiftMask,  XK_0,               tag,                {.ui = ~0} },
-	    { MODKEY,              XK_ssharp,          spawn,              SHCMD("pamixer --allow-boost -d 5; kill -44 $(pidof dwmblocks)") },
-	    { MODKEY | ShiftMask,  XK_ssharp,          spawn,              SHCMD("pamixer --allow-boost -d 15; kill -44 $(pidof dwmblocks)") },
-	    { MODKEY,              XK_acute,           spawn,              SHCMD("pamixer --allow-boost -i 5; kill -44 $(pidof dwmblocks)") },
-	    { MODKEY | ShiftMask,  XK_acute,           spawn,              SHCMD("pamixer --allow-boost -i 15; kill -44 $(pidof dwmblocks)") },
+	    { MODKEY,              XK_minus,          spawn,              SHCMD("pamixer --allow-boost -d 5; kill -44 $(pidof dwmblocks)") },
+	    { MODKEY | ShiftMask,  XK_minus,          spawn,              SHCMD("pamixer --allow-boost -d 15; kill -44 $(pidof dwmblocks)") },
+	    { MODKEY,              XK_equal,           spawn,              SHCMD("pamixer --allow-boost -i 5; kill -44 $(pidof dwmblocks)") },
+	    { MODKEY | ShiftMask,  XK_equal,           spawn,              SHCMD("pamixer --allow-boost -i 15; kill -44 $(pidof dwmblocks)") },
 	    { MODKEY,              XK_BackSpace,       spawn,              {.v = (const char *[]){"sysact", NULL}} },
 	    { MODKEY | ShiftMask,  XK_BackSpace,       spawn,              {.v = (const char *[]){"sysact", NULL}} },
 	    { MODKEY,              XK_Tab,             view,               {0} },
@@ -207,8 +207,8 @@
 	    { MODKEY | ShiftMask,  XK_r,               spawn,              {.v = (const char *[]){TERMINAL, "-e", "htop", NULL}} },
 	    { MODKEY,              XK_t,               setlayout,          {.v = &layouts[0]} }, /* tile */
 	    { MODKEY | ShiftMask,  XK_t,               setlayout,          {.v = &layouts[1]} }, /* bstack */
-	    { MODKEY,              XK_z,               setlayout,          {.v = &layouts[2]} }, /* spiral */
-	    { MODKEY | ShiftMask,  XK_z,               setlayout,          {.v = &layouts[3]} }, /* dwindle */
+	    { MODKEY,              XK_y,               setlayout,          {.v = &layouts[2]} }, /* spiral */
+	    { MODKEY | ShiftMask,  XK_y,               setlayout,          {.v = &layouts[3]} }, /* dwindle */
 	    { MODKEY,              XK_u,               setlayout,          {.v = &layouts[4]} }, /* deck */
 	    { MODKEY | ShiftMask,  XK_u,               setlayout,          {.v = &layouts[5]} }, /* monocle */
 	    { MODKEY,              XK_i,               setlayout,          {.v = &layouts[6]} }, /* centeredmaster */
@@ -217,10 +217,10 @@
 	    { MODKEY | ShiftMask,  XK_o,               incnmaster,         {.i = -1} },
 	    { MODKEY,              XK_p,               spawn,              {.v = (const char *[]){"mpc", "toggle", NULL}} },
 	    { MODKEY | ShiftMask,  XK_p,               spawn,              SHCMD("mpc pause ; pauseallmpv") },
-	    { MODKEY,              XK_udiaeresis,      spawn,              {.v = (const char *[]){"mpc", "seek", "-10", NULL}} },
-	    { MODKEY | ShiftMask,  XK_udiaeresis,      spawn,              {.v = (const char *[]){"mpc", "seek", "-60", NULL}} },
-	    { MODKEY,              XK_plus,            spawn,              {.v = (const char *[]){"mpc", "seek", "+10", NULL}} },
-	    { MODKEY | ShiftMask,  XK_plus,            spawn,              {.v = (const char *[]){"mpc", "seek", "+60", NULL}} },
+	    { MODKEY,              XK_bracketleft,      spawn,              {.v = (const char *[]){"mpc", "seek", "-10", NULL}} },
+	    { MODKEY | ShiftMask,  XK_bracketleft,      spawn,              {.v = (const char *[]){"mpc", "seek", "-60", NULL}} },
+	    { MODKEY,              XK_bracketright,            spawn,              {.v = (const char *[]){"mpc", "seek", "+10", NULL}} },
+	    { MODKEY | ShiftMask,  XK_bracketright,            spawn,              {.v = (const char *[]){"mpc", "seek", "+60", NULL}} },
 	    { MODKEY,              XK_a,               togglegaps,         {0} },
 	    { MODKEY | ShiftMask,  XK_a,               defaultgaps,        {0} },
 	  /*{ MODKEY,              XK_s,               spawn,              {.v = (const char *[]){NULL}} },*/
@@ -236,16 +236,16 @@
 	    /* J and K are automatically bound above in STACKEYS */
 	    { MODKEY,              XK_l,               setmfact,           {.f = +0.05} },
 	  /*{ MODKEY | ShiftMask,  XK_l,               spawn,              {.v = (const char *[]){NULL}} },*/
-	  /*{ MODKEY,              XK_odiaeresis,      spawn,              {.v = (const char *[]){NULL}} },*/
-	  /*{ MODKEY | ShiftMask,  XK_odiaeresis,      spawn,              {.v = (const char *[]){NULL}} },*/
-	  /*{ MODKEY,              XK_adiaeresis,      spawn,              {.v = (const char *[]){NULL}} },*/
-	  /*{ MODKEY | ShiftMask,  XK_adiaeresis,      spawn,              {.v = (const char *[]){NULL}} },*/
-	    { MODKEY,              XK_numbersign,      togglescratch,      {.v = spqalc} },
-	  /*{ MODKEY | ShiftMask,  XK_numbersign,      spawn,              {.v = (const char *[]){NULL}} },*/
+	  /*{ MODKEY,              XK_semicolon,      spawn,              {.v = (const char *[]){NULL}} },*/
+	  /*{ MODKEY | ShiftMask,  XK_semicolon,      spawn,              {.v = (const char *[]){NULL}} },*/
+	  /*{ MODKEY,              XK_apostrophe,      spawn,              {.v = (const char *[]){NULL}} },*/
+	  /*{ MODKEY | ShiftMask,  XK_apostrophe,      spawn,              {.v = (const char *[]){NULL}} },*/
+	    { MODKEY,              XK_backslash,      togglescratch,      {.v = spqalc} },
+	  /*{ MODKEY | ShiftMask,  XK_backslash,      spawn,              {.v = (const char *[]){NULL}} },*/
 	    { MODKEY,              XK_Return,          spawn,              {.v = (const char *[]){TERMINAL, "-d", "~", NULL}} },
 	    { MODKEY | ShiftMask,  XK_Return,          spawnsshaware,      {.v = (const char *[]){TERMINAL, "-d", "~", NULL}} },
-	  /*{ MODKEY,              XK_y,               spawn,              {.v = (const char *[]){NULL}} },*/
-	  /*{ MODKEY | ShiftMask,  XK_y,               spawn,              {.v = (const char *[]){NULL}} },*/
+	  /*{ MODKEY,              XK_z,               spawn,              {.v = (const char *[]){NULL}} },*/
+	  /*{ MODKEY | ShiftMask,  XK_z,               spawn,              {.v = (const char *[]){NULL}} },*/
 	  /*{ MODKEY,              XK_x,               spawn,              {.v = (const char *[]){NULL}} },*/
 	  /*{ MODKEY | ShiftMask,  XK_x,               spawn,              {.v = (const char *[]){NULL}} },*/
 	  /*{ MODKEY,              XK_c,               spawn,              {.v = (const char *[]){NULL}} },*/
@@ -261,8 +261,8 @@
 	    { MODKEY | ShiftMask,  XK_comma,           spawn,              {.v = (const char *[]){"mpc", "seek", "0%", NULL}} },
 	    { MODKEY,              XK_period,          spawn,              {.v = (const char *[]){"mpc", "next", NULL}} },
 	    { MODKEY | ShiftMask,  XK_period,          spawn,              {.v = (const char *[]){"mpc", "repeat", NULL}} },
-	  /*{ MODKEY,              XK_minus,           spawn,              {.v = (const char *[]){NULL}} },*/
-	  /*{ MODKEY | ShiftMask,  XK_minus,           spawn,              {.v = (const char *[]){NULL}} },*/
+	  /*{ MODKEY,              XK_slash,           spawn,              {.v = (const char *[]){NULL}} },*/
+	  /*{ MODKEY | ShiftMask,  XK_slash,           spawn,              {.v = (const char *[]){NULL}} },*/
 	    { MODKEY,              XK_space,           zoom,               {0} },
 	    { MODKEY | ShiftMask,  XK_space,           togglefloating,     {0} },
 	    { 0,                   XK_Print,           spawn,              SHCMD("maim ~/Photos/Screenshots/pic-full-$(date '+%y%m%d-%H%M-%S').png") },

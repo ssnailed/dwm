@@ -3,7 +3,7 @@
 I use a modified floatrules patch that allows setting floats for X, Y, W and H values that are interpreted as percentages of screen space.
 The SGR patch allows my sb-status scripts to use colors and show larger NerdFonts icons.
 
-If you use an American keyboard, do `mv configAMERICAN.h config.h` before installing
+If you use a German keyboard, do `mv configGERMAN.h config.h` before installing
 
 ## Todo
 - [ ] Add Keybind Reference (read config.h for now)
