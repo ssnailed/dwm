@@ -20,6 +20,9 @@
  *
  * To understand everything else, start reading main().
  */
+
+// TODO: Update maximized spterm window when toggling bar
+
 #include <errno.h>
 #include <locale.h>
 #include <signal.h>
@@ -376,6 +379,9 @@ applyrules(Client *c)
 		&& (!r->class || strstr(class, r->class))
 		&& (!r->instance || strstr(instance, r->instance)))
 		{
+ 			for (m = mons; m && m->num != r->monitor; m = m->next);
+			if (m)
+        c->mon = m;
 			c->isterminal = r->isterminal;
 			c->noswallow  = r->noswallow;
 			c->isfloating = r->isfloating;
@@ -385,19 +391,28 @@ applyrules(Client *c)
 				c->floatborderpx = r->floatborderpx;
 				c->hasfloatbw = 1;
 			}
+
+      - (bh + m->by);
       if (r->isfloating) {
-        if (r->floatw > 1 || r->floatw == 0) c->w = r->floatw;
-        else if (r->floatw > 0) c->w = (int)((float)c->mon->mw * r->floatw);
-        if (r->floath > 1 || r->floath == 0) c->h = r->floath;
-        else if (r->floath > 0) c->h = (int)((float)c->mon->mh * r->floath);
-        if (r->floatx > 1 || r->floatx == 0) c->x = c->mon->mx + r->floatx;
-        else if (r->floatx > 0) c->x = c->mon->mx + (int)((float)c->mon->mw * r->floatx - (float)c->w / 2);
-        if (r->floaty > 1 || r->floaty == 0) c->y = c->mon->my + r->floaty;
-        else if (r->floaty > 0) c->y = c->mon->my + (int)((float)c->mon->mh * r->floaty - (float)c->h / 2);
+        if (r->floatw > 1)       c->w = r->floatw - c->floatborderpx * 2;
+        else if (r->floatw > 0)  c->w = (int)((float)c->mon->mw * r->floatw - c->floatborderpx * 2);
+
+        if (r->floath > 1)       c->h = r->floath - c->floatborderpx * 2 - (bh + m->by);
+        else if (r->floath > 0)  c->h = (int)((float)c->mon->mh * r->floath - c->floatborderpx * 2) - (bh + m->by);
+        
+
+        if (r->floatx > 1)       c->x = c->mon->mx + r->floatx;
+        else if (r->floatx > 0)  c->x = c->mon->mx + (int)((float)c->mon->mw * r->floatx - (float)c->w / 2);
+        else if (r->floatx == 0);
+        else if (r->floatx > -1) c->x = c->mon->mx + c->mon->mw + (int)((float)c->mon->mw * r->floatx - (float)c->w / 2);
+        else                     c->x = c->mon->mx + c->mon->mw + r->floatx - c->w;
+
+        if (r->floaty > 1)       c->y = c->mon->my + r->floaty;
+        else if (r->floaty > 0)  c->y = c->mon->my + (int)((float)c->mon->mh * r->floaty - (float)c->h / 2);
+        else if (r->floaty == 0);
+        else if (r->floaty > -1) c->y = c->mon->my + c->mon->mh + (int)((float)c->mon->mh * r->floaty - (float)c->h / 2);
+        else                     c->y = c->mon->my + c->mon->mh + r->floaty - c->h;
       }
-			for (m = mons; m && m->num != r->monitor; m = m->next);
-			if (m)
-				c->mon = m;
 		}
 	}
 	if (ch.res_class)
@@ -1471,7 +1486,10 @@ manage(Window w, XWindowAttributes *wa)
 	/* only fix client y-offset, if the client center might cover the bar */
 	c->y = MAX(c->y, ((c->mon->by == c->mon->my) && (c->x + (c->w / 2) >= c->mon->wx)
 		&& (c->x + (c->w / 2) < c->mon->wx + c->mon->ww)) ? bh : c->mon->my);
-	c->bw = borderpx;
+  if (c->hasfloatbw)
+    c->bw = c->floatborderpx;
+  else
+	  c->bw = borderpx;
 
 	wc.border_width = c->bw;
 	XConfigureWindow(dpy, w, CWBorderWidth, &wc);
@@ -2271,18 +2289,23 @@ togglescratch(const Arg *arg)
 {
 	Client *c;
 	unsigned int found = 0;
-
-	for (c = selmon->clients; c && !(found = c->scratchkey == ((char**)arg->v)[0][0]); c = c->next);
+  Monitor *m;
+  for(m = mons; m; m = m->next) {
+    for (c = m->clients; c && !(found = c->scratchkey == ((char**)arg->v)[0][0]); c = c->next);
+    if (found)
+      break;
+  }
 	if (found) {
-		c->tags = ISVISIBLE(c) ? 0 : selmon->tagset[selmon->seltags];
-		focus(NULL);
-		arrange(selmon);
-
-		if (ISVISIBLE(c)) {
-			focus(c);
-			restack(selmon);
-		}
-
+    if(m != selmon);
+    else {
+      c->tags = ISVISIBLE(c) ? 0 : selmon->tagset[selmon->seltags];
+      focus(NULL);
+      arrange(selmon);
+      if (ISVISIBLE(c)) {
+        focus(c);
+        restack(selmon);
+      }
+    }
 	} else{
 		spawnscratch(arg);
 	}
