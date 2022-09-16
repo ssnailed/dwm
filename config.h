@@ -183,7 +183,7 @@
 	    { MODKEY,              XK_F9,              spawn,              {.v = (const char *[]){"dmenumount", NULL}} },
 	    { MODKEY,              XK_F10,             spawn,              {.v = (const char *[]){"dmenuumount", NULL}} },
 	  /*{ MODKEY,              XK_F11,             spawn,              {.v = (const char *[]){NULL}} },*/
-	    { MODKEY,              XK_F12,             spawn,              {.v = (const char *[]){"remaps", NULL}} },
+	    { MODKEY,              XK_F12,             spawn,              {.v = (const char *[]){"xkb-switch ", "-n", NULL}} },
 	    { MODKEY,              XK_asciicircum,     spawn,              {.v = (const char *[]){"dmenuunicode", NULL}} },
 	  /*{ MODKEY | ShiftMask,  XK_asciicircum,     spawn,              {.v = (const char *[]){NULL}} },*/
 	    TAGKEYS(               XK_1,                                   0)
