@@ -31,8 +31,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-#include <proc/readproc.h>
-#include <sys/stat.h>
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <X11/cursorfont.h>
@@ -204,8 +202,6 @@ static void clientmessage(XEvent *e);
 static void configure(Client *c);
 static void configurenotify(XEvent *e);
 static void configurerequest(XEvent *e);
-static char* checksshsession(pid_t process);
-static int checkparents(pid_t pid, pid_t target);
 static Monitor *createmon(void);
 static void destroynotify(XEvent *e);
 static void detach(Client *c);
@@ -222,7 +218,6 @@ static void focusstack(const Arg *arg);
 static Atom getatomprop(Client *c, Atom prop);
 static int getrootptr(int *x, int *y);
 static long getstate(Window w);
-static int getprocinfo(pid_t pid, proc_t *procinfo);
 static int gettextprop(Window w, Atom atom, char *text, unsigned int size);
 static void grabbuttons(Client *c, int focused);
 static void grabkeys(void);
@@ -262,9 +257,7 @@ static void sighup(int unused);
 static void sigterm(int unused);
 static void spawn(const Arg *arg);
 static void spawnscratch(const Arg *arg);
-static void spawnsshaware(const Arg *arg);
 static int stackpos(const Arg *arg);
-static int strtopid(char *s, pid_t *pid);
 static void tag(const Arg *arg);
 static void tagmon(const Arg *arg);
 static void togglebar(const Arg *arg);
@@ -586,7 +579,6 @@ attachstack(Client *c)
 void
 swallow(Client *p, Client *c)
 {
-
   if (c->noswallow || c->isterminal)
     return;
   if (c->noswallow && !swallowfloating && c->isfloating)
@@ -797,63 +789,6 @@ configurenotify(XEvent *e)
     }
   }
 }
-
-int
-checkparents(pid_t pid, pid_t target)
-{
-  proc_t *pinf = calloc(1, sizeof(proc_t));
-  pid_t current = pid;
-
-  while(current!=(pid_t)0 && current!=(pid_t)1 && current!=target){
-    getprocinfo(current, pinf);
-    current = pinf->ppid;
-  }
-  freeproc(pinf);
-  if(current==target)
-    return 1;
-  return 0;
-}
-
-char*
-checksshsession(pid_t process)
-{
-  struct dirent *dp;
-  DIR *dfd;
-  const char *dir = "/proc";
-  char filename_qfd[100] ;
-  pid_t pid;
-  proc_t* process_info = calloc(1, sizeof(proc_t));
-  struct stat stbuf;
-  char* res = 0;
-
-  if ((dfd = opendir(dir)) == NULL) {
-    fprintf(stderr, "Can't open %s\n", dir);
-    freeproc(process_info);
-    return 0;
-  }
-
-  while ((dp = readdir(dfd)) != NULL && res == 0) {
-    sprintf( filename_qfd , "%s/%s",dir,dp->d_name);
-    if(stat(filename_qfd,&stbuf ) == -1) {
-      fprintf(stderr, "Unable to stat file: %s\n",filename_qfd);
-      continue;
-    }
-    if (((stbuf.st_mode & S_IFMT) == S_IFDIR) && strtopid(dp->d_name, &pid)) {
-      getprocinfo(pid, process_info);
-      if(!process_info->cmdline)
-        continue;
-      char* cmdline = *process_info->cmdline;
-      if(strncmp("ssh ", cmdline, 4) == 0 && checkparents(pid, process)){
-        res = calloc(strlen(cmdline)+1, sizeof(char));
-        strcpy(res, cmdline);
-      }
-    }
-  }
-  freeproc(process_info);
-  free(dfd);
-  return res;
-}
-
 
 void
 configurerequest(XEvent *e)
@@ -1360,19 +1295,6 @@ getstate(Window w)
     result = *p;
   XFree(p);
   return result;
-}
-
-int
-getprocinfo(pid_t pid, proc_t *procinfo)
-{
-  int res = 1;
-  if(!procinfo)
-    return 0;
-  PROCTAB *pt_ptr = openproc(PROC_FILLARG | PROC_EDITCMDLCVT | PROC_FILLSTATUS | PROC_PID, &pid);
-  if(readproc(pt_ptr, procinfo))
-    res = 0;
-  closeproc(pt_ptr);
-  return res;
 }
 
 int
@@ -2191,38 +2113,6 @@ sigterm(int unused)
 }
 
 void
-spawnsshaware(const Arg *arg)
-{
-  if(selmon->sel) {
-    char* sshcmdline = checksshsession(selmon->sel->pid);
-    if(sshcmdline){
-      const char* sshcmd[] = {"st", "-e", "/bin/bash", "-c", sshcmdline, NULL};
-      Arg a = {.v=sshcmd};
-      spawn(&a);
-      free(sshcmdline);
-    }else{
-      spawn(arg);
-    }
-  }else{
-    spawn(arg);
-  }
-}
-
-int
-strtopid(char *s, pid_t *pid)
-{
-  long result = 0;
-  char *eptr;
-  if(!pid)
-    return 0;
-  result = strtol(s, &eptr, 10);
-  if((eptr && *eptr!='\0') || errno == ERANGE)
-    return 0;
-  *pid=(pid_t) result;
-  return 1;
-}
-
-void
 spawn(const Arg *arg)
 {
   if (fork() == 0) {
@@ -2233,7 +2123,7 @@ spawn(const Arg *arg)
     fprintf(stderr, "dwm: execvp %s", ((char **)arg->v)[0]);
     perror(" failed");
     exit(EXIT_SUCCESS);
-  }
+ }
 }
 
 void spawnscratch(const Arg *arg)
@@ -2779,134 +2669,134 @@ wintomon(Window w)
   return selmon;
 }
 
-
 pid_t
 winpid(Window w)
 {
-  pid_t result = 0;
 
-  #ifdef __linux__
-  xcb_res_client_id_spec_t spec = {0};
-  spec.client = w;
-  spec.mask = XCB_RES_CLIENT_ID_MASK_LOCAL_CLIENT_PID;
+	pid_t result = 0;
 
-  xcb_generic_error_t *e = NULL;
-  xcb_res_query_client_ids_cookie_t c = xcb_res_query_client_ids(xcon, 1, &spec);
-  xcb_res_query_client_ids_reply_t *r = xcb_res_query_client_ids_reply(xcon, c, &e);
+#ifdef __linux__
+	xcb_res_client_id_spec_t spec = {0};
+	spec.client = w;
+	spec.mask = XCB_RES_CLIENT_ID_MASK_LOCAL_CLIENT_PID;
 
-  if (!r)
-    return (pid_t)0;
+	xcb_generic_error_t *e = NULL;
+	xcb_res_query_client_ids_cookie_t c = xcb_res_query_client_ids(xcon, 1, &spec);
+	xcb_res_query_client_ids_reply_t *r = xcb_res_query_client_ids_reply(xcon, c, &e);
 
-  xcb_res_client_id_value_iterator_t i = xcb_res_query_client_ids_ids_iterator(r);
-  for (; i.rem; xcb_res_client_id_value_next(&i)) {
-    spec = i.data->spec;
-    if (spec.mask & XCB_RES_CLIENT_ID_MASK_LOCAL_CLIENT_PID) {
-      uint32_t *t = xcb_res_client_id_value_value(i.data);
-      result = *t;
-      break;
-    }
-  }
+	if (!r)
+		return (pid_t)0;
 
-  free(r);
+	xcb_res_client_id_value_iterator_t i = xcb_res_query_client_ids_ids_iterator(r);
+	for (; i.rem; xcb_res_client_id_value_next(&i)) {
+		spec = i.data->spec;
+		if (spec.mask & XCB_RES_CLIENT_ID_MASK_LOCAL_CLIENT_PID) {
+			uint32_t *t = xcb_res_client_id_value_value(i.data);
+			result = *t;
+			break;
+		}
+	}
 
-  if (result == (pid_t)-1)
-    result = 0;
+	free(r);
 
-  #endif /* __linux__ */
+	if (result == (pid_t)-1)
+		result = 0;
 
-  #ifdef __OpenBSD__
+#endif /* __linux__ */
+
+#ifdef __OpenBSD__
         Atom type;
         int format;
         unsigned long len, bytes;
         unsigned char *prop;
         pid_t ret;
 
-        if (XGetWindowProperty(dpy, w, XInternAtom(dpy, "_NET_WM_PID", 1), 0, 1, False, AnyPropertyType, &type, &format, &len, &bytes, &prop) != Success || !prop)
+        if (XGetWindowProperty(dpy, w, XInternAtom(dpy, "_NET_WM_PID", 0), 0, 1, False, AnyPropertyType, &type, &format, &len, &bytes, &prop) != Success || !prop)
                return 0;
 
         ret = *(pid_t*)prop;
         XFree(prop);
         result = ret;
 
-  #endif /* __OpenBSD__ */
-  return result;
+#endif /* __OpenBSD__ */
+	return result;
 }
 
 pid_t
 getparentprocess(pid_t p)
 {
-  unsigned int v = 0;
+	unsigned int v = 0;
 
 #ifdef __linux__
-  FILE *f;
-  char buf[256];
-  snprintf(buf, sizeof(buf) - 1, "/proc/%u/stat", (unsigned)p);
+	FILE *f;
+	char buf[256];
+	snprintf(buf, sizeof(buf) - 1, "/proc/%u/stat", (unsigned)p);
 
-  if (!(f = fopen(buf, "r")))
-    return 0;
+	if (!(f = fopen(buf, "r")))
+		return 0;
 
-  fscanf(f, "%*u %*s %*c %u", &v);
-  fclose(f);
+	fscanf(f, "%*u %*s %*c %u", &v);
+	fclose(f);
 #endif /* __linux__*/
 
 #ifdef __OpenBSD__
-  int n;
-  kvm_t *kd;
-  struct kinfo_proc *kp;
+	int n;
+	kvm_t *kd;
+	struct kinfo_proc *kp;
 
-  kd = kvm_openfiles(NULL, NULL, NULL, KVM_NO_FILES, NULL);
-  if (!kd)
-    return 0;
+	kd = kvm_openfiles(NULL, NULL, NULL, KVM_NO_FILES, NULL);
+	if (!kd)
+		return 0;
 
-  kp = kvm_getprocs(kd, KERN_PROC_PID, p, sizeof(*kp), &n);
-  v = kp->p_ppid;
+	kp = kvm_getprocs(kd, KERN_PROC_PID, p, sizeof(*kp), &n);
+	v = kp->p_ppid;
 #endif /* __OpenBSD__ */
 
-  return (pid_t)v;
+	return (pid_t)v;
 }
 
 int
 isdescprocess(pid_t p, pid_t c)
 {
-  while (p != c && c != 0)
-    c = getparentprocess(c);
+	while (p != c && c != 0)
+		c = getparentprocess(c);
 
-  return (int)c;
+	return (int)c;
 }
 
 Client *
 termforwin(const Client *w)
 {
-  Client *c;
-  Monitor *m;
+	Client *c;
+	Monitor *m;
 
-  if (!w->pid || w->isterminal)
-    return NULL;
+	if (!w->pid || w->isterminal)
+		return NULL;
 
-  for (m = mons; m; m = m->next) {
-    for (c = m->clients; c; c = c->next) {
-      if (c->isterminal && !c->swallowing && c->pid && isdescprocess(c->pid, w->pid))
-        return c;
-    }
-  }
+	for (m = mons; m; m = m->next) {
+		for (c = m->clients; c; c = c->next) {
+			if (c->isterminal && !c->swallowing && c->pid && isdescprocess(c->pid, w->pid))
+				return c;
+		}
+	}
 
-  return NULL;
+	return NULL;
 }
 
 Client *
 swallowingclient(Window w)
 {
-  Client *c;
-  Monitor *m;
+	Client *c;
+	Monitor *m;
 
-  for (m = mons; m; m = m->next) {
-    for (c = m->clients; c; c = c->next) {
-      if (c->swallowing && c->swallowing->win == w)
-        return c;
-    }
-  }
+	for (m = mons; m; m = m->next) {
+		for (c = m->clients; c; c = c->next) {
+			if (c->swallowing && c->swallowing->win == w)
+				return c;
+		}
+	}
 
-  return NULL;
+	return NULL;
 }
 
 /* There's no way to check accesses to destroyed windows, thus those cases are

@@ -79,13 +79,13 @@
      * If X, Y, W or H are between 0 and 1 (inclusive), their values interpreted as percentages of the current monitor resolution.
      * If X or Y are negative, they are subtracted from the current monitor resolution and then that value is interpreted.
 	     class           instance    title           scratch key   tags mask   isfloating isterminal noswallow   x,    y,   w,    h     borderpx */
-	  { "Gimp",          NULL,       NULL,           0,             0,          1,         0,         0,         0,    0,   0,    0,   -1 },
+	  { NULL,            NULL,       "Event Tester", 0,             0,          0,         0,         1,         0,    0,   0,    0,   -1 },
+	  { "kitty",         "kitty",    NULL,           0,             0,          0,         1,         0,         0,    0,   0,    0,   -1 },
 	  { "Qalculate-gtk", NULL,       NULL,           'q',           0,          1,         0,         0,        .5,   .5,   722,  512, -1 },
 	  { NULL,            "spterm",   NULL,           't',           0,          1,         1,         0,        .5,   .5,   1,    1,    0 },
 	  { NULL,            "splf",     NULL,           'l',           0,          1,         0,         0,        .5,   .5,  .8,   .8,   -1 },
 	  { NULL,            "sphtop",   NULL,           'h',           0,          1,         0,         0,        .5,   .5,  .8,   .8,   -1 },
 	  { NULL,            "spmix",    NULL,           'm',           0,          1,         0,         0,        -4,   -4,   900,  600, -1 },
-	  { NULL,            NULL,       "Event Tester", 0,             0,          0,         0,         1,         0,    0,   0,    0,   -1 },
 	
 	};
 	
