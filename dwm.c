@@ -2300,7 +2300,6 @@ tagmon(const Arg *arg)
 void
 togglebar(const Arg *arg)
 {
-  printf("toggling bar\n");
   selmon->showbar = selmon->pertag->showbars[selmon->pertag->curtag] = !selmon->showbar;
   updatebarpos(selmon);
   XMoveResizeWindow(dpy, selmon->barwin, selmon->wx, selmon->by, selmon->ww, bh);

@@ -173,7 +173,7 @@
 	    STACKKEYS(MODKEY, focus) STACKKEYS(MODKEY | ShiftMask, push)
 	  /* modifier             key                 function            argument */
 	    { MODKEY,              XK_F1,              spawn,              SHCMD("groff -mom /usr/local/share/dwm/keybinds.mom -Tpdf | zathura -") },
-	    { MODKEY,              XK_F2,              spawn,              {.v = (const char *[]){TERMINAL, "-e", "deluge-console"}} },
+	    { MODKEY,              XK_F2,              spawn,              {.v = (const char *[]){TERMINAL, "-e", "deluge-console", NULL}} },
 	    { MODKEY,              XK_F3,              togglescratch,      {.v = spmix} },
 	  /*{ MODKEY,              XK_F4,              spawn,              {.v = (const char *[]){NULL}} },*/
 	  /*{ MODKEY,              XK_F5,              spawn,              {.v = (const char *[]){NULL}} },*/
@@ -183,7 +183,7 @@
 	    { MODKEY,              XK_F9,              spawn,              {.v = (const char *[]){"dmenumount", NULL}} },
 	    { MODKEY,              XK_F10,             spawn,              {.v = (const char *[]){"dmenuumount", NULL}} },
 	  /*{ MODKEY,              XK_F11,             spawn,              {.v = (const char *[]){NULL}} },*/
-	    { MODKEY,              XK_F12,             spawn,              {.v = (const char *[]){"xkb-switch ", "-n", NULL}} },
+	    { MODKEY,              XK_F12,             spawn,              {.v = (const char *[]){"xkb-switch", "-n", NULL}} },
 	    { MODKEY,              XK_asciicircum,     spawn,              {.v = (const char *[]){"dmenuunicode", NULL}} },
 	  /*{ MODKEY | ShiftMask,  XK_asciicircum,     spawn,              {.v = (const char *[]){NULL}} },*/
 	    TAGKEYS(               XK_1,                                   0)
