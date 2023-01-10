@@ -2674,34 +2674,34 @@ pid_t
 winpid(Window w)
 {
 
-	pid_t result = 0;
+  pid_t result = 0;
 
 #ifdef __linux__
-	xcb_res_client_id_spec_t spec = {0};
-	spec.client = w;
-	spec.mask = XCB_RES_CLIENT_ID_MASK_LOCAL_CLIENT_PID;
+  xcb_res_client_id_spec_t spec = {0};
+  spec.client = w;
+  spec.mask = XCB_RES_CLIENT_ID_MASK_LOCAL_CLIENT_PID;
 
-	xcb_generic_error_t *e = NULL;
-	xcb_res_query_client_ids_cookie_t c = xcb_res_query_client_ids(xcon, 1, &spec);
-	xcb_res_query_client_ids_reply_t *r = xcb_res_query_client_ids_reply(xcon, c, &e);
+  xcb_generic_error_t *e = NULL;
+  xcb_res_query_client_ids_cookie_t c = xcb_res_query_client_ids(xcon, 1, &spec);
+  xcb_res_query_client_ids_reply_t *r = xcb_res_query_client_ids_reply(xcon, c, &e);
 
-	if (!r)
-		return (pid_t)0;
+  if (!r)
+    return (pid_t)0;
 
-	xcb_res_client_id_value_iterator_t i = xcb_res_query_client_ids_ids_iterator(r);
-	for (; i.rem; xcb_res_client_id_value_next(&i)) {
-		spec = i.data->spec;
-		if (spec.mask & XCB_RES_CLIENT_ID_MASK_LOCAL_CLIENT_PID) {
-			uint32_t *t = xcb_res_client_id_value_value(i.data);
-			result = *t;
-			break;
-		}
-	}
+  xcb_res_client_id_value_iterator_t i = xcb_res_query_client_ids_ids_iterator(r);
+  for (; i.rem; xcb_res_client_id_value_next(&i)) {
+    spec = i.data->spec;
+    if (spec.mask & XCB_RES_CLIENT_ID_MASK_LOCAL_CLIENT_PID) {
+      uint32_t *t = xcb_res_client_id_value_value(i.data);
+      result = *t;
+      break;
+    }
+  }
 
-	free(r);
+  free(r);
 
-	if (result == (pid_t)-1)
-		result = 0;
+  if (result == (pid_t)-1)
+    result = 0;
 
 #endif /* __linux__ */
 
@@ -2720,84 +2720,84 @@ winpid(Window w)
         result = ret;
 
 #endif /* __OpenBSD__ */
-	return result;
+  return result;
 }
 
 pid_t
 getparentprocess(pid_t p)
 {
-	unsigned int v = 0;
+  unsigned int v = 0;
 
 #ifdef __linux__
-	FILE *f;
-	char buf[256];
-	snprintf(buf, sizeof(buf) - 1, "/proc/%u/stat", (unsigned)p);
+  FILE *f;
+  char buf[256];
+  snprintf(buf, sizeof(buf) - 1, "/proc/%u/stat", (unsigned)p);
 
-	if (!(f = fopen(buf, "r")))
-		return 0;
+  if (!(f = fopen(buf, "r")))
+    return 0;
 
-	fscanf(f, "%*u %*s %*c %u", &v);
-	fclose(f);
+  fscanf(f, "%*u %*s %*c %u", &v);
+  fclose(f);
 #endif /* __linux__*/
 
 #ifdef __OpenBSD__
-	int n;
-	kvm_t *kd;
-	struct kinfo_proc *kp;
+  int n;
+  kvm_t *kd;
+  struct kinfo_proc *kp;
 
-	kd = kvm_openfiles(NULL, NULL, NULL, KVM_NO_FILES, NULL);
-	if (!kd)
-		return 0;
+  kd = kvm_openfiles(NULL, NULL, NULL, KVM_NO_FILES, NULL);
+  if (!kd)
+    return 0;
 
-	kp = kvm_getprocs(kd, KERN_PROC_PID, p, sizeof(*kp), &n);
-	v = kp->p_ppid;
+  kp = kvm_getprocs(kd, KERN_PROC_PID, p, sizeof(*kp), &n);
+  v = kp->p_ppid;
 #endif /* __OpenBSD__ */
 
-	return (pid_t)v;
+  return (pid_t)v;
 }
 
 int
 isdescprocess(pid_t p, pid_t c)
 {
-	while (p != c && c != 0)
-		c = getparentprocess(c);
+  while (p != c && c != 0)
+    c = getparentprocess(c);
 
-	return (int)c;
+  return (int)c;
 }
 
 Client *
 termforwin(const Client *w)
 {
-	Client *c;
-	Monitor *m;
+  Client *c;
+  Monitor *m;
 
-	if (!w->pid || w->isterminal)
-		return NULL;
+  if (!w->pid || w->isterminal)
+    return NULL;
 
-	for (m = mons; m; m = m->next) {
-		for (c = m->clients; c; c = c->next) {
-			if (c->isterminal && !c->swallowing && c->pid && isdescprocess(c->pid, w->pid))
-				return c;
-		}
-	}
+  for (m = mons; m; m = m->next) {
+    for (c = m->clients; c; c = c->next) {
+      if (c->isterminal && !c->swallowing && c->pid && isdescprocess(c->pid, w->pid))
+        return c;
+    }
+  }
 
-	return NULL;
+  return NULL;
 }
 
 Client *
 swallowingclient(Window w)
 {
-	Client *c;
-	Monitor *m;
+  Client *c;
+  Monitor *m;
 
-	for (m = mons; m; m = m->next) {
-		for (c = m->clients; c; c = c->next) {
-			if (c->swallowing && c->swallowing->win == w)
-				return c;
-		}
-	}
+  for (m = mons; m; m = m->next) {
+    for (c = m->clients; c; c = c->next) {
+      if (c->swallowing && c->swallowing->win == w)
+        return c;
+    }
+  }
 
-	return NULL;
+  return NULL;
 }
 
 /* There's no way to check accesses to destroyed windows, thus those cases are
