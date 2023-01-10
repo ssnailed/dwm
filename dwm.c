@@ -21,7 +21,8 @@
  * To understand everything else, start reading main().
  */
 
-// TODO: Update maximized spterm window when toggling bar
+// FIX: Swallow patch
+// applyrules ??
 
 #include <errno.h>
 #include <locale.h>
