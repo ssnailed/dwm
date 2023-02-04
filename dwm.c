@@ -2271,13 +2271,13 @@ void setup(void) {
     cursor[CurResize] = drw_cur_create(drw, XC_sizing);
     cursor[CurMove] = drw_cur_create(drw, XC_fleur);
     /* init appearance */
-    scheme = ecalloc(LENGTH(colors), sizeof(Clr *));
-    for (i = 0; i < LENGTH(colors); i++)
-        scheme[i] = drw_scm_create(drw, colors[i], 3);
+    scheme = ecalloc(LENGTH(barschemes), sizeof(Clr *));
+    for (i = 0; i < LENGTH(barschemes); i++)
+        scheme[i] = drw_scm_create(drw, barschemes[i], 3);
 
-    barclrs = ecalloc(LENGTH(barcolors), sizeof(Clr));
-    for (i = 0; i < LENGTH(barcolors); i++)
-        drw_clr_create(drw, &barclrs[i], barcolors[i]);
+    barclrs = ecalloc(LENGTH(colors), sizeof(Clr));
+    for (i = 0; i < LENGTH(colors); i++)
+        drw_clr_create(drw, &barclrs[i], colors[i]);
 
     /* init system tray */
     updatesystray();
