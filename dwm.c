@@ -201,14 +201,14 @@ typedef struct {
     const char *class;
     const char *instance;
     const char *title;
+    const char scratchkey;
     unsigned int tags;
     int isfloating;
     int isterminal;
     int noswallow;
-    int monitor;
-    const char scratchkey;
-    int floatx, floaty, floatw, floath;
+    float floatx, floaty, floatw, floath;
     int floatborderpx;
+    // int monitor;
 } Rule;
 
 typedef struct Systray Systray;
@@ -228,6 +228,7 @@ typedef struct {
 
 /* function declarations */
 static void applyrules(Client *c);
+static void applyfloatrules(Client *c, const Rule *r);
 static int applysizehints(Client *c, int *x, int *y, int *w, int *h, int interact);
 static void arrange(Monitor *m);
 static void arrangemon(Monitor *m);
@@ -274,6 +275,7 @@ static void manage(Window w, XWindowAttributes *wa);
 static void mappingnotify(XEvent *e);
 static void maprequest(XEvent *e);
 static void monocle(Monitor *m);
+static int matchrules(Client *c);
 static void motionnotify(XEvent *e);
 static void movemouse(const Arg *arg);
 static Client *nexttiled(Client *c);
@@ -412,85 +414,72 @@ struct NumTags {
 
 /* function implementations */
 void applyrules(Client *c) {
-    const char *class, *instance;
-    unsigned int i;
+    unsigned int i = -1;
     const Rule *r;
-    Monitor *m;
-    XClassHint ch = {NULL, NULL};
+    // Monitor *m;
 
-    /* rule matching */
     c->isfloating = 0;
     c->tags = 0;
     c->scratchkey = 0;
-    XGetClassHint(dpy, c->win, &ch);
-    class = ch.res_class ? ch.res_class : broken;
-    instance = ch.res_name ? ch.res_name : broken;
-
-    for (i = 0; i < LENGTH(rules); i++) {
+    i = matchrules(c);
+    if (i >= 0) {
         r = &rules[i];
-        if ((!r->title || strstr(c->name, r->title)) && (!r->class || strstr(class, r->class)) &&
-            (!r->instance || strstr(instance, r->instance))) {
-            c->isterminal = r->isterminal;
-            c->noswallow = r->noswallow;
-            c->isfloating = r->isfloating;
-            c->tags |= r->tags;
-            if (r->floatborderpx >= 0) {
-                c->floatborderpx = r->floatborderpx;
-                c->hasfloatbw = 1;
-            }
-            if (r->isfloating) {
-                if (r->floatx > 1)
-                    c->x = r->floatx;
-                else if (r->floatx > 0)
-                    c->x = (int)((float)c->mon->ww * r->floatx - (float)WIDTH(c) / 2);
-                else if (r->floatx == 0)
-                    ;
-                else if (r->floatx > -1)
-                    c->x = c->mon->ww + (int)((float)c->mon->ww * r->floatx - (float)WIDTH(c) / 2);
-                else
-                    c->x = c->mon->ww + r->floatx - WIDTH(c);
-                if (c->x + WIDTH(c) > c->mon->wx + c->mon->ww)
-                    c->x = c->mon->ww - WIDTH(c);
-                c->x = MAX(c->x + c->mon->wx, c->mon->wx);
-
-                if (r->floaty > 1)
-                    c->y = r->floaty;
-                else if (r->floaty > 0)
-                    c->y = (int)((float)c->mon->wh * r->floaty - (float)HEIGHT(c) / 2);
-                else if (r->floaty == 0)
-                    ;
-                else if (r->floaty > -1)
-                    c->y = c->mon->wh + (int)((float)c->mon->wh * r->floaty - (float)HEIGHT(c) / 2);
-                else
-                    c->y = c->mon->wh + r->floaty - HEIGHT(c);
-                if (c->y + HEIGHT(c) > c->mon->wy + c->mon->wh)
-                    c->y = c->mon->wh - HEIGHT(c);
-                c->y = MAX(c->y + c->mon->wy, c->mon->wy);
-
-                if (r->floatw > 1)
-                    c->w = r->floatw;
-                else if (r->floatw > 0)
-                    c->w = (int)((float)c->mon->ww * r->floatw);
-                c->w = MIN(c->w, c->mon->ww) - c->bw * 2;
-
-                if (r->floath > 1)
-                    c->h = r->floath;
-                else if (r->floath > 0)
-                    c->h = (int)((float)c->mon->wh * r->floath);
-                c->h = MIN(c->h, c->mon->wh) - c->bw * 2;
-            }
-            c->scratchkey = r->scratchkey;
-            for (m = mons; m && m->num != r->monitor; m = m->next)
-                ;
-            if (m)
-                c->mon = m;
+        c->isterminal = r->isterminal;
+        c->noswallow = r->noswallow;
+        c->isfloating = r->isfloating;
+        c->tags |= r->tags;
+        c->scratchkey = r->scratchkey;
+        if (r->floatborderpx >= 0) {
+            c->floatborderpx = r->floatborderpx;
+            c->hasfloatbw = 1;
+        }
+        if (r->isfloating) {
+            applyfloatrules(c, r);
         }
     }
-    if (ch.res_class)
-        XFree(ch.res_class);
-    if (ch.res_name)
-        XFree(ch.res_name);
     c->tags = c->tags & TAGMASK ? c->tags & TAGMASK : c->mon->tagset[c->mon->seltags];
+}
+
+void applyfloatrules(Client *c, const Rule *r) {
+    if (r->floatw > 1)
+        c->w = r->floatw;
+    else if (r->floatw > 0)
+        c->w = (int)((float)c->mon->ww * r->floatw);
+    c->w = MIN(c->w, c->mon->ww) - c->bw * 2;
+
+    if (r->floath > 1)
+        c->h = r->floath;
+    else if (r->floath > 0)
+        c->h = (int)((float)c->mon->wh * r->floath);
+    c->h = MIN(c->h, c->mon->wh) - c->bw * 2;
+
+    if (r->floatx > 1)
+        c->x = r->floatx;
+    else if (r->floatx > 0)
+        c->x = (int)((float)c->mon->ww * r->floatx - (float)WIDTH(c) / 2);
+    else if (r->floatx == 0)
+        ;
+    else if (r->floatx > -1)
+        c->x = c->mon->ww + (int)((float)c->mon->ww * r->floatx - (float)WIDTH(c) / 2);
+    else
+        c->x = c->mon->ww + r->floatx - WIDTH(c);
+    if (c->x + WIDTH(c) > c->mon->wx + c->mon->ww)
+        c->x = c->mon->ww - WIDTH(c);
+    c->x = MAX(c->x + c->mon->wx, c->mon->wx);
+
+    if (r->floaty > 1)
+        c->y = r->floaty;
+    else if (r->floaty > 0)
+        c->y = (int)((float)c->mon->wh * r->floaty - (float)HEIGHT(c) / 2);
+    else if (r->floaty == 0)
+        ;
+    else if (r->floaty > -1)
+        c->y = c->mon->wh + (int)((float)c->mon->wh * r->floaty - (float)HEIGHT(c) / 2);
+    else
+        c->y = c->mon->wh + r->floaty - HEIGHT(c);
+    if (c->y + HEIGHT(c) > c->mon->wy + c->mon->wh)
+        c->y = c->mon->wh - HEIGHT(c);
+    c->y = MAX(c->y + c->mon->wy, c->mon->wy);
 }
 
 int applysizehints(Client *c, int *x, int *y, int *w, int *h, int interact) {
@@ -1765,6 +1754,32 @@ void maprequest(XEvent *e) {
         manage(ev->window, &wa);
 }
 
+int matchrules(Client *c) {
+    const char *class, *instance;
+    unsigned int ri;
+    const Rule *r;
+    XClassHint ch = {NULL, NULL};
+    XGetClassHint(dpy, c->win, &ch);
+    class = ch.res_class ? ch.res_class : broken;
+    instance = ch.res_name ? ch.res_name : broken;
+    for (ri = 0; ri < LENGTH(rules); ri++) {
+        r = &rules[ri];
+        if ((!r->title || strstr(c->name, r->title)) && (!r->class || strstr(class, r->class)) &&
+            (!r->instance || strstr(instance, r->instance))) {
+            if (ch.res_class)
+                XFree(ch.res_class);
+            if (ch.res_name)
+                XFree(ch.res_name);
+            return ri;
+        }
+    }
+    if (ch.res_class)
+        XFree(ch.res_class);
+    if (ch.res_name)
+        XFree(ch.res_name);
+    return False;
+}
+
 void monocle(Monitor *m) {
     unsigned int n = 0;
     Client *c;
@@ -2685,7 +2700,7 @@ void updatebarpos(Monitor *m) {
         m->by = -bh;
 }
 
-void updateclientlist() {
+void updateclientlist(void) {
     Client *c;
     Monitor *m;
 

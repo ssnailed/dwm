@@ -79,16 +79,16 @@ static const Rule rules[] = {
      * WM_NAME(STRING) = title
      * If X, Y, W or H are between 0 and 1 (inclusive), their values interpreted as percentages of the current monitor resolution.
      * If X or Y are negative, they are subtracted from the current monitor resolution and then that value is interpreted.
-       class           instance            title           scratch key   tags mask   isfloating isterminal noswallow   x,    y,   w,    h     borderpx */
-    { NULL,            NULL,               "Event Tester", 0,             0,          0,         0,         1,         0,    0,   0,    0,   -1 },
-    { "Xournalpp",     "xournalpp",        NULL,           0,             0,          0,         0,        -1,         0,    0,   0,    0,   -1 },
-    { "Zathura",       "org.pwmt.zathura", NULL,           0,             0,          0,         0,        -1,         0,    0,   0,    0,   -1 },
-    { NULL,            "kitty",            NULL,           0,             0,          0,         1,         0,         0,    0,   0,    0,   -1 },
-    { "Qalculate-gtk", NULL,               NULL,           'q',           0,          1,         0,         0,        .5,   .5,   722,  512, -1 },
-    // { NULL,            "spterm",           NULL,           't',           0,          1,         1,         0,        .5,   .5,   1,    1,   -1 },
-    { NULL,            "splf",             NULL,           'l',           0,          1,         0,         0,        .5,   .5,  .8,   .8,   -1 },
-    { NULL,            "sphtop",           NULL,           'h',           0,          1,         0,         0,        .5,   .5,  .8,   .8,   -1 },
-    { NULL,            "spmix",            NULL,           'm',           0,          1,         0,         0,        -4,   -4,   900,  600, -1 },
+       class           instance            title           scratch key tags mask   isfloating isterminal noswallow   x,    y,   w,    h     borderpx */
+    { NULL,            NULL,               "Event Tester", 0,          0,          0,         0,         1,         0,    0,   0,    0,   -1 },
+    { "Xournalpp",     "xournalpp",        NULL,           0,          0,          0,         0,        -1,         0,    0,   0,    0,   -1 },
+    { "Zathura",       "org.pwmt.zathura", NULL,           0,          0,          0,         0,        -1,         0,    0,   0,    0,   -1 },
+    { NULL,            "kitty",            NULL,           0,          0,          0,         1,         0,         0,    0,   0,    0,   -1 },
+    { "Qalculate-gtk", NULL,               NULL,           'q',        0,          1,         0,         0,        .5,   .5,   722,  512, -1 },
+    { NULL,            "sphelp",           NULL,           'n',        0,          1,         1,         0,        .5,   .5,  .3,   .8,   -1 },
+    { NULL,            "splf",             NULL,           'l',        0,          1,         0,         0,        .5,   .5,  .8,   .8,   -1 },
+    { NULL,            "sphtop",           NULL,           'h',        0,          1,         0,         0,        .5,   .5,  .8,   .8,   -1 },
+    { NULL,            "spmix",            NULL,           'm',        0,          1,         0,         0,        -4,   -4,   900,  600, -1 },
 };
 
 /* layout(s) */
@@ -125,7 +125,8 @@ static const Layout layouts[] = {
 static const char *spqalc[] = { "q", "qalculate-gtk", NULL };
 static const char *splf[] = { "l", TERMINAL, "--name", "splf", "-d", "~", "-e", "lf", NULL };
 static const char *sphtop[] = { "h", TERMINAL, "--name", "sphtop", "-e", "htop", NULL };
-static const char *spmix[] = { "m", "/bin/sh", "-c", "$TERMINAL --name spmix -e pulsemixer; pkill -RTMIN+10 dwmblocks" };
+static const char *spmix[] = { "m", "/bin/sh", "-c", TERMINAL "--name spmix -e pulsemixer; pkill -RTMIN+10 dwmblocks" };
+static const char *sphelp[] = { "n", TERMINAL, "--name", "sphelp", "-e", "/bin/sh", "-c", "lowdown -Tterm /usr/local/share/dwm/dwm.md | less" };
 
 /* Xresources preferences to load at startup */
 ResourcePref resources[] = {
@@ -153,7 +154,7 @@ ResourcePref resources[] = {
 
 static const Key keys[] = {
     /* modifier                     key        function        argument */
-    { MODKEY,              XK_F1,              spawn,              SHCMD("groff -mom /usr/local/share/dwm/keybinds.mom -Tpdf | zathura -") },
+    { MODKEY,              XK_F1,              togglescratch,      {.v = sphelp} },
     // { MODKEY,              XK_F2,              spawn,              {.v = (const char *[]){NULL}} },
     { MODKEY,              XK_F3,              togglescratch,      {.v = spmix} },
     // { MODKEY,              XK_F4,              spawn,              {.v = (const char *[]){NULL}} },
@@ -183,15 +184,15 @@ static const Key keys[] = {
     // { MODKEY,              XK_bracketright,    spawn,              {.v = (const char *[]){NULL}} },
     // { MODKEY | ShiftMask,  XK_bracketright,    spawn,              {.v = (const char *[]){NULL}} },
     { MODKEY,              XK_BackSpace,       spawn,              {.v = (const char *[]){"sysact", NULL}} },
-    { MODKEY | ShiftMask,  XK_BackSpace,       spawn,              {.v = (const char *[]){"sysact", NULL}} },
+    // { MODKEY | ShiftMask,  XK_BackSpace,       spawn,              {.v = (const char *[]){NULL}} },
     { MODKEY,              XK_Tab,             focusstack,         {.i = 0} },
     { MODKEY | ShiftMask,  XK_Tab,             pushstack,          {.i = 0} },
     { MODKEY,              XK_apostrophe,      killclient,         {0} },
     // { MODKEY | ShiftMask,  XK_apostrophe,      spawn,              {.v = (const char *[]){NULL}} },
-    { MODKEY,              XK_comma,            focusmon,           {.i = -1} },
-    { MODKEY | ShiftMask,  XK_comma,            tagmon,             {.i = -1} },
-    { MODKEY,              XK_period,           focusmon,           {.i = +1} },
-    { MODKEY | ShiftMask,  XK_period,           tagmon,             {.i = +1} },
+    { MODKEY,              XK_comma,           focusmon,           {.i = -1} },
+    { MODKEY | ShiftMask,  XK_comma,           tagmon,             {.i = -1} },
+    { MODKEY,              XK_period,          focusmon,           {.i = +1} },
+    { MODKEY | ShiftMask,  XK_period,          tagmon,             {.i = +1} },
     { MODKEY,              XK_p,               togglefullscr,      {0} },
     // { MODKEY | ShiftMask,  XK_p,               setlayout,          {.v = (const char *[]){NULL}} },
     // { MODKEY,              XK_y,               spawn,              {.v = (const char *[]){NULL}} },
@@ -215,7 +216,7 @@ static const Key keys[] = {
     { MODKEY,              XK_o,               togglescratch,      {.v = sphtop} },
     { MODKEY | ShiftMask,  XK_o,               spawn,              {.v = (const char *[]){TERMINAL, "-e", "htop", NULL}} },
     { MODKEY,              XK_e,               togglescratch,      {.v = splf} },
-    { MODKEY | ShiftMask,  XK_e,               spawn,              {.v = (const char *[]){TERMINAL, "-d", "~", "-e", "lf", NULL}} },
+    { MODKEY | ShiftMask,  XK_e,               spawn,              SHCMD(TERMINAL "-e $SHELL -c \"lf; $SHELL\"")},
     { MODKEY,              XK_u,               spawn,              {.v = (const char *[]){BROWSER, NULL}} },
     { MODKEY | ShiftMask,  XK_u,               spawn,              {.v = (const char *[]){TERMINAL, "-e", "sudo", "nmtui", NULL}} },
     // { MODKEY,              XK_i,               spawn,              {.v = (const char *[]){NULL}} },
@@ -225,7 +226,7 @@ static const Key keys[] = {
     { MODKEY,              XK_h,               setmfact,           {.f = -0.05} },
     // { MODKEY | ShiftMask,  XK_h,               spawn,              {.v = (const char *[]){NULL}} },
     { MODKEY,              XK_t,               spawn,              {.v = (const char *[]){"dmenu_run", NULL}} },
-    { MODKEY | ShiftMask,  XK_t,               spawn,              {.v = (const char *[]){NULL}} },
+    // { MODKEY | ShiftMask,  XK_t,               spawn,              {.v = (const char *[]){NULL}} },
     { MODKEY,              XK_n,               setlayout,          {.v = &layouts[0]} },
     { MODKEY | ShiftMask,  XK_n,               setlayout,          {.v = &layouts[1]} },
     { MODKEY,              XK_s,               setlayout,          {.v = &layouts[2]} },
@@ -278,9 +279,9 @@ static const Key keys[] = {
     { MODKEY | ShiftMask,  XK_End,             quit,               {0} },
     // { MODKEY,              XK_Page_Down,       spawn,              {.v = (const char *[]){NULL}} },
     // { MODKEY | ShiftMask,  XK_Page_Down,       spawn,              {.v = (const char *[]){NULL}} },
-    { MODKEY,              XK_Left,           spawn,              {.v = (const char *[]){"playerctl", "-p", PLAYERCTL, "previous", NULL}} },
-    { MODKEY | ShiftMask,  XK_Left,           spawn,              {.v = (const char *[]){"playerctl", "-p", PLAYERCTL, "position", "0", NULL}} },
-    { MODKEY,              XK_Right,          spawn,              {.v = (const char *[]){"playerctl", "-p", PLAYERCTL, "next", NULL}} },
+    { MODKEY,              XK_Left,            spawn,              {.v = (const char *[]){"playerctl", "-p", PLAYERCTL, "previous", NULL}} },
+    { MODKEY | ShiftMask,  XK_Left,            spawn,              {.v = (const char *[]){"playerctl", "-p", PLAYERCTL, "position", "0", NULL}} },
+    { MODKEY,              XK_Right,           spawn,              {.v = (const char *[]){"playerctl", "-p", PLAYERCTL, "next", NULL}} },
     // { MODKEY | ShiftMask,  XK_Right,          spawn,              {.v = (const char *[]){NULL}} },
     { MODKEY,              XK_Up,              spawn,              SHCMD("pamixer --allow-boost -i 5; pkill -RTMIN+10 dwmblocks") },
     { MODKEY | ShiftMask,  XK_Up,              spawn,              SHCMD("pamixer --allow-boost -i 20; pkill -RTMIN+10 dwmblocks") },
