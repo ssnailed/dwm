@@ -40,6 +40,8 @@ install: all
 	mkdir -p ${DESTDIR}${PREFIX}/bin
 	cp -f dwm ${DESTDIR}${PREFIX}/bin
 	chmod 755 ${DESTDIR}${PREFIX}/bin/dwm
+	cp -f README.md ${DESTDIR}${PREFIX}/share/dwm/dwm.md
+	chmod 644 ${DESTDIR}${PREFIX}/share/dwm/dwm.md
 
 uninstall:
 	rm -f ${DESTDIR}${PREFIX}/bin/dwm
