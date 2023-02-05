@@ -1,8 +1,7 @@
 /* See LICENSE file for copyright and license details. */
-
 #define BROWSER "librewolf"
 #define TERMINAL "kitty"
-#define PLAYER "firefox" /* this is currently only passed to playerctl as the client to control */
+#define PLAYERCTL "firefox" /* this is currently only passed to playerctl as the client to control */
 
 /* appearance */
 static const unsigned int borderpx = 2;
@@ -10,33 +9,66 @@ static const unsigned int snap = 20;
 static const int showbar = 1;
 static const int topbar = 1;
 static const int swallowfloating = 0;
+static const unsigned int systraypinning = 0;
+static const unsigned int systrayonleft = 0;
+static const unsigned int systrayspacing = 2;
+static const int systraypinningfailfirst = 1;
 static const int showsystray = 1;
-static const int systrayonleft = 0;
-static char *fonts[] = {
+static const char *fonts[] = {
     "monospace:pixelsize=14",
     "monospace:pixelsize=20",
     "monospace:pixelsize=30",
 };
 
-static char *colors[] = {
-    [0]  = "#000000", [1]  = "#7f0000", [2]  = "#007f00", [3]  = "#7f7f00",
-    [4]  = "#00007f", [5]  = "#7f007f", [6]  = "#007f7f", [7]  = "#cccccc",
-    [8]  = "#333333", [9]  = "#ff0000", [10] = "#00ff00", [11] = "#ffff00",
-    [12] = "#0000ff", [13] = "#ff00ff", [14] = "#00ffff", [15] = "#ffffff",
-    /* Extra Colors (not accessible with SGR escapes) */
-    [16] = "#222222", [17] = "#444444", 
+static char color0[]     = "#000000";
+static char color1[]     = "#7f0000";
+static char color2[]     = "#007f00";
+static char color3[]     = "#7f7f00";
+static char color4[]     = "#00007f";
+static char color5[]     = "#7f007f";
+static char color6[]     = "#007f7f";
+static char color7[]     = "#cccccc";
+static char color8[]     = "#333333"; 
+static char color9[]     = "#ff0000"; 
+static char color10[]    = "#00ff00"; 
+static char color11[]    = "#ffff00"; 
+static char color12[]    = "#0000ff"; 
+static char color13[]    = "#ff00ff"; 
+static char color14[]    = "#00ffff"; 
+static char color15[]    = "#ffffff";
+static char bordernorm[] = "#222222";
+static char bordersel[]  = "#444444";
+
+static char *barschemes[][3]        = {
+    /*                    fg       bg       border   */
+    [SchemeNorm]      = { color15, color0, bordernorm },
+    [SchemeSel]       = { color15, color4, bordersel },
+    [SchemeStatus]    = { color7,  color0, "#000000" }, // Statusbar right
+    [SchemeTagsSel]   = { color0,  color4, "#000000" }, // Tagbar left selected
+    [SchemeTagsNorm]  = { color7,  color0, "#000000" }, // Tagbar left unselected
+    [SchemeInfoSel]   = { color7,  color0, "#000000" }, // infobar middle selected
+    [SchemeInfoNorm]  = { color7,  color0, "#000000" }, // infobar middle unselected
 };
 
-static char *barschemes[][3] = {
-    /*                  fg          bg         border */
-    [SchemeNorm]     = {colors[15], colors[0], colors[16]},
-    [SchemeSel]      = {colors[15], colors[4], colors[17]},
-    [SchemeStatus]   = {colors[7],  colors[0], "#000000"}, // Statusbar right
-    [SchemeTagsSel]  = {colors[0],  colors[4], "#000000"}, // Tagbar left selected
-    [SchemeTagsNorm] = {colors[7],  colors[0], "#000000"}, // Tagbar left unselected
-    [SchemeInfoSel]  = {colors[7],  colors[0], "#000000"}, // infobar middle selected
-    [SchemeInfoNorm] = {colors[7],  colors[0], "#000000"}, // infobar middle unselected
-};
+// static const char *colors[] = {
+//     [0]  = "#000000", [1]  = "#7f0000", [2]  = "#007f00", [3]  = "#7f7f00",
+//     [4]  = "#00007f", [5]  = "#7f007f", [6]  = "#007f7f", [7]  = "#cccccc",
+//     [8]  = "#333333", [9]  = "#ff0000", [10] = "#00ff00", [11] = "#ffff00",
+//     [12] = "#0000ff", [13] = "#ff00ff", [14] = "#00ffff", [15] = "#ffffff",
+//     /* Extra Colors (not accessible with SGR escapes) */
+//     [16] = "#222222", [17] = "#444444", 
+// };
+//
+// static char *barschemes[][3] = {
+//     /*                  fg          bg         border */
+//     [SchemeNorm]     = {colors[15], colors[0], colors[16]},
+//     [SchemeSel]      = {colors[15], colors[4], colors[17]},
+//     [SchemeStatus]   = {colors[7],  colors[0], "#000000"}, // Statusbar right
+//     [SchemeTagsSel]  = {colors[0],  colors[4], "#000000"}, // Tagbar left selected
+//     [SchemeTagsNorm] = {colors[7],  colors[0], "#000000"}, // Tagbar left unselected
+//     [SchemeInfoSel]  = {colors[7],  colors[0], "#000000"}, // infobar middle selected
+//     [SchemeInfoNorm] = {colors[7],  colors[0], "#000000"}, // infobar middle unselected
+// };
 
 /* tagging */
 static const char *tags[] = {"1", "2", "3", "4", "5", "6", "7", "8", "9"};
@@ -68,11 +100,11 @@ static const int lockfullscreen = 1; /* 1 will force focus on the fullscreen win
 static const Layout layouts[] = {
     /* symbol arrange function */
     { "[]=",  tile },
-    { "[M]",  monocle },
     { "TTT",  bstack },
-    { ":::",  gaplessgrid },
-    { "===",  bstackhoriz },
     { "|M|",  centeredmaster },
+    { ":::",  gaplessgrid },
+    { "[M]",  monocle },
+    { "===",  bstackhoriz },
     { ">M>",  centeredfloatingmaster },
     { "><>",  NULL }, /* Floating */
 };
@@ -84,14 +116,6 @@ static const Layout layouts[] = {
     { MODKEY|ControlMask,           KEY,      toggleview,     {.ui = 1 << TAG} }, \
     { MODKEY|ShiftMask,             KEY,      tag,            {.ui = 1 << TAG} }, \
     { MODKEY|ControlMask|ShiftMask, KEY,      toggletag,      {.ui = 1 << TAG} },
-#define STACKKEYS(MOD,ACTION) \
-    {MOD,                           XK_j,     ACTION##stack,  {.i = INC(+1)}},    \
-    {MOD,                           XK_k,     ACTION##stack,  {.i = INC(-1)}},    \
-    {MOD,                           XK_tab,   ACTION##stack,  {.i = 0}},          \
-    {MOD,                           XK_v,     ACTION##stack,  {.i = PREVSEL}},    \
-    // {MOD,                           XK_a,     ACTION##stack,  {.i = 1}},          \
-    // {MOD,                           XK_z,     ACTION##stack,  {.i = 2}},          \
-    // {MOD,                           XK_x,     ACTION##stack,  {.i = -1}},
 
 /* helper for spawning shell commands in the pre dwm-5.0 fashion */
 #define SHCMD(cmd) { .v = (const char *[]) { "/bin/sh", "-c", cmd, NULL } }
@@ -105,24 +129,24 @@ static const char *spmix[] = { "m", "/bin/sh", "-c", "$TERMINAL --name spmix -e 
 
 /* Xresources preferences to load at startup */
 ResourcePref resources[] = {
-    { "color0",     STRING, &colors[0] },
-    { "color1",     STRING, &colors[1] },
-    { "color2",     STRING, &colors[2] },
-    { "color3",     STRING, &colors[3] },
-    { "color4",     STRING, &colors[4] },
-    { "color5",     STRING, &colors[5] },
-    { "color6",     STRING, &colors[6] },
-    { "color7",     STRING, &colors[7] },
-    { "color8",     STRING, &colors[8] },
-    { "color9",     STRING, &colors[9] },
-    { "color10",    STRING, &colors[10] },
-    { "color11",    STRING, &colors[11] },
-    { "color12",    STRING, &colors[12] },
-    { "color13",    STRING, &colors[13] },
-    { "color14",    STRING, &colors[14] },
-    { "color15",    STRING, &colors[15] },
-    { "bordernorm", STRING, &colors[16] },
-    { "bordersel",  STRING, &colors[17] },
+    { "color0",     STRING, &color0 },
+    { "color1",     STRING, &color1 },
+    { "color2",     STRING, &color2 },
+    { "color3",     STRING, &color3 },
+    { "color4",     STRING, &color4 },
+    { "color5",     STRING, &color5 },
+    { "color6",     STRING, &color6 },
+    { "color7",     STRING, &color7 },
+    { "color8",     STRING, &color8 },
+    { "color9",     STRING, &color9 },
+    { "color10",    STRING, &color10 },
+    { "color11",    STRING, &color11 },
+    { "color12",    STRING, &color12 },
+    { "color13",    STRING, &color13 },
+    { "color14",    STRING, &color14 },
+    { "color15",    STRING, &color15 },
+    { "bordernorm", STRING, &bordernorm },
+    { "bordersel",  STRING, &bordersel },
 };
 
 #include <X11/XF86keysym.h>
@@ -154,82 +178,84 @@ static const Key keys[] = {
     TAGKEYS(               XK_9,                                   8)
     { MODKEY,              XK_0,               view,               {.ui = ~0} },
     { MODKEY | ShiftMask,  XK_0,               tag,                {.ui = ~0} },
-    // { MODKEY,              XK_ssharp,          spawn,              {.v = (const char *[]){NULL}} },
-    // { MODKEY | ShiftMask,  XK_ssharp,          spawn,              {.v = (const char *[]){NULL}} },
-    // { MODKEY,              XK_acute,           spawn,              {.v = (const char *[]){NULL}} },
-    // { MODKEY | ShiftMask,  XK_acute,           spawn,              {.v = (const char *[]){NULL}} },
+    // { MODKEY,              XK_bracketleft,     spawn,              {.v = (const char *[]){NULL}} },
+    // { MODKEY | ShiftMask,  XK_bracketleft,     spawn,              {.v = (const char *[]){NULL}} },
+    // { MODKEY,              XK_bracketright,    spawn,              {.v = (const char *[]){NULL}} },
+    // { MODKEY | ShiftMask,  XK_bracketright,    spawn,              {.v = (const char *[]){NULL}} },
     { MODKEY,              XK_BackSpace,       spawn,              {.v = (const char *[]){"sysact", NULL}} },
     { MODKEY | ShiftMask,  XK_BackSpace,       spawn,              {.v = (const char *[]){"sysact", NULL}} },
-    /* XK_Tab is bound in STACKKEYS*/
-    { MODKEY|ShiftMask,    XK_Tab,             view,               {0} },
-    { MODKEY,              XK_q,               killclient,         {0} },
-    // { MODKEY | ShiftMask,  XK_q,               spawn,              {.v = (const char *[]){NULL}} },
-    // { MODKEY,              XK_w,               spawn,              {.v = (const char *[]){NULL}} },
-    // { MODKEY | ShiftMask,  XK_w,               spawn,              {.v = (const char *[]){NULL}} },
-    { MODKEY,              XK_e,               togglescratch,      {.v = splf} },
-    // { MODKEY | ShiftMask,  XK_e,               spawn,              {.v = (const char *[]){NULL}} },
+    { MODKEY,              XK_Tab,             focusstack,         {.i = 0} },
+    { MODKEY | ShiftMask,  XK_Tab,             pushstack,          {.i = 0} },
+    { MODKEY,              XK_apostrophe,      killclient,         {0} },
+    // { MODKEY | ShiftMask,  XK_apostrophe,      spawn,              {.v = (const char *[]){NULL}} },
+    { MODKEY,              XK_comma,            focusmon,           {.i = -1} },
+    { MODKEY | ShiftMask,  XK_comma,            tagmon,             {.i = -1} },
+    { MODKEY,              XK_period,           focusmon,           {.i = +1} },
+    { MODKEY | ShiftMask,  XK_period,           tagmon,             {.i = +1} },
+    { MODKEY,              XK_p,               togglefullscr,      {0} },
+    // { MODKEY | ShiftMask,  XK_p,               setlayout,          {.v = (const char *[]){NULL}} },
+    // { MODKEY,              XK_y,               spawn,              {.v = (const char *[]){NULL}} },
+    // { MODKEY | ShiftMask,  XK_y,               spawn,              {.v = (const char *[]){NULL}} },
+    // { MODKEY,              XK_f,               spawn,              {.v = (const char *[]){NULL}} },
+    // { MODKEY | ShiftMask,  XK_f,               spawn,              {.v = (const char *[]){NULL}} },
+    // { MODKEY,              XK_g,               spawn,              {.v = (const char *[]){NULL}} },
+    // { MODKEY | ShiftMask,  XK_g,               spawn,              {.v = (const char *[]){NULL}} },
+    { MODKEY,              XK_c,               incnmaster,         {.i = -1} },
+    { MODKEY | ShiftMask,  XK_c,               resetnmaster,       {0} },
     { MODKEY,              XK_r,               incnmaster,         {.i = +1} },
-    { MODKEY | ShiftMask,  XK_r,               incnmaster,         {.i = -1} },
-    // { MODKEY,              XK_t,               spawn,              {.v = (const char *[]){NULL}} },
-    // { MODKEY | ShiftMask,  XK_t,               spawn,              {.v = (const char *[]){NULL}} },
-    // { MODKEY,              XK_z,               spawn,              {.v = (const char *[]){NULL}} },
-    // { MODKEY | ShiftMask,  XK_z,               spawn,              {.v = (const char *[]){NULL}} },
+    { MODKEY | ShiftMask,  XK_r,               resetnmaster,       {0} },
+    { MODKEY,              XK_l,               setmfact,           {.f = +0.05} },
+    // { MODKEY | ShiftMask,  XK_l,               spawn,              {.v = (const char *[]){NULL}} },
+    // { MODKEY,              XK_slash,           spawn,              {.v = (const char *[]){NULL}} },
+    // { MODKEY | ShiftMask,  XK_slash,           spawn,              {.v = (const char *[]){NULL}} },
+    // { MODKEY,              XK_equal,           spawn,              {.v = (const char *[]){NULL}} },
+    // { MODKEY | ShiftMask,  XK_equal,           spawn,              {.v = (const char *[]){NULL}} },
+    // { MODKEY,              XK_a,               spawn,              {.v = (const char *[]){NULL}} },
+    // { MODKEY | ShiftMask,  XK_a,               spawn,              {.v = (const char *[]){NULL}} },
+    { MODKEY,              XK_o,               togglescratch,      {.v = sphtop} },
+    { MODKEY | ShiftMask,  XK_o,               spawn,              {.v = (const char *[]){TERMINAL, "-e", "htop", NULL}} },
+    { MODKEY,              XK_e,               togglescratch,      {.v = splf} },
+    { MODKEY | ShiftMask,  XK_e,               spawn,              {.v = (const char *[]){TERMINAL, "-d", "~", "-e", "lf", NULL}} },
     { MODKEY,              XK_u,               spawn,              {.v = (const char *[]){BROWSER, NULL}} },
     { MODKEY | ShiftMask,  XK_u,               spawn,              {.v = (const char *[]){TERMINAL, "-e", "sudo", "nmtui", NULL}} },
     // { MODKEY,              XK_i,               spawn,              {.v = (const char *[]){NULL}} },
     // { MODKEY | ShiftMask,  XK_i,               spawn,              {.v = (const char *[]){NULL}} },
-    { MODKEY,              XK_o,               togglescratch,      {.v = sphtop} },
-    { MODKEY | ShiftMask,  XK_o,               spawn,              {.v = (const char *[]){TERMINAL, "-e", "htop", NULL}} },
-    // { MODKEY,              XK_p,               spawn,              {.v = (const char *[]){NULL}} },
-    // { MODKEY | ShiftMask,  XK_p,               spawn,              {.v = (const char *[]){NULL}} },
-    // { MODKEY,              XK_udiaeresis,      spawn,              {.v = (const char *[]){NULL}} },
-    // { MODKEY | ShiftMask,  XK_udiaeresis,      spawn,              {.v = (const char *[]){NULL}} },
-    // { MODKEY,              XK_plus,            spawn,              {.v = (const char *[]){NULL}} },
-    // { MODKEY | ShiftMask,  XK_plus,            spawn,              {.v = (const char *[]){NULL}} },
-    { MODKEY,              XK_a,               togglegaps,         {0} },
-    { MODKEY | ShiftMask,  XK_a,               defaultgaps,        {0} },
-    // { MODKEY,              XK_s,               spawn,              {.v = (const char *[]){NULL}} },
-    // { MODKEY | ShiftMask,  XK_s,               spawn,              {.v = (const char *[]){NULL}} },
-    { MODKEY,              XK_d,               spawn,              {.v = (const char *[]){"dmenu_run", NULL}} },
-    { MODKEY | ShiftMask,  XK_d,               spawn,              {.v = (const char *[]){NULL}} },
-    { MODKEY,              XK_f,               togglefullscr,      {0} },
-    // { MODKEY | ShiftMask,  XK_f,               setlayout,          {.v = (const char *[]){NULL}} },
-    // { MODKEY,              XK_g,               spawn,              {.v = (const char *[]){NULL}} },
-    // { MODKEY | ShiftMask,  XK_g,               spawn,              {.v = (const char *[]){NULL}} },
+    // { MODKEY,              XK_d,               spawn,              {.v = (const char *[]){NULL}} },
+    // { MODKEY | ShiftMask,  XK_d,               spawn,              {.v = (const char *[]){NULL}} },
     { MODKEY,              XK_h,               setmfact,           {.f = -0.05} },
     // { MODKEY | ShiftMask,  XK_h,               spawn,              {.v = (const char *[]){NULL}} },
-    /* XK_j and XK_k are bound in STACKKEYS */
-    { MODKEY,              XK_l,               setmfact,           {.f = +0.05} },
-    // { MODKEY | ShiftMask,  XK_l,               spawn,              {.v = (const char *[]){NULL}} },
-    // { MODKEY,              XK_odiaeresis,      spawn,              {.v = (const char *[]){NULL}} },
-    // { MODKEY | ShiftMask,  XK_odiaeresis,      spawn,              {.v = (const char *[]){NULL}} },
-    // { MODKEY,              XK_adiaeresis,      spawn,              {.v = (const char *[]){NULL}} },
-    // { MODKEY | ShiftMask,  XK_adiaeresis,      spawn,              {.v = (const char *[]){NULL}} },
-    { MODKEY,              XK_numbersign,      togglescratch,      {.v = spqalc} },
-    // { MODKEY | ShiftMask,  XK_numbersign,      spawn,              {.v = (const char *[]){NULL}} },
+    { MODKEY,              XK_t,               spawn,              {.v = (const char *[]){"dmenu_run", NULL}} },
+    { MODKEY | ShiftMask,  XK_t,               spawn,              {.v = (const char *[]){NULL}} },
+    { MODKEY,              XK_n,               setlayout,          {.v = &layouts[0]} },
+    { MODKEY | ShiftMask,  XK_n,               setlayout,          {.v = &layouts[1]} },
+    { MODKEY,              XK_s,               setlayout,          {.v = &layouts[2]} },
+    { MODKEY | ShiftMask,  XK_s,               setlayout,          {.v = &layouts[3]} },
+    { MODKEY,              XK_minus,           setlayout,          {.v = &layouts[4]} },
+    { MODKEY | ShiftMask,  XK_minus,           setlayout,          {.v = &layouts[5]} },
     { MODKEY,              XK_backslash,       togglescratch,      {.v = spqalc} },
     // { MODKEY | ShiftMask,  XK_backslash,       spawn,              {.v = (const char *[]){NULL}} },
     { MODKEY,              XK_Return,          spawn,              {.v = (const char *[]){TERMINAL, "-d", "~", NULL}} },
     { MODKEY | ShiftMask,  XK_Return,          spawn,              {.v = (const char *[]){"samedir", NULL}} },
-    // { MODKEY,              XK_y,               spawn,              {.v = (const char *[]){NULL}} },
-    // { MODKEY | ShiftMask,  XK_y,               spawn,              {.v = (const char *[]){NULL}} },
+    // { MODKEY,              XK_semicolon,       spawn,              {.v = (const char *[]){NULL}} },
+    // { MODKEY | ShiftMask,  XK_semicolon,       spawn,              {.v = (const char *[]){NULL}} },
+    // { MODKEY,              XK_q,               spawn,              {.v = (const char *[]){NULL}} },
+    // { MODKEY | ShiftMask,  XK_q,               spawn,              {.v = (const char *[]){NULL}} },
+    { MODKEY,              XK_j,               focusstack,         {.i = INC(+1)} },
+    { MODKEY | ShiftMask,  XK_j,               pushstack,          {.i = INC(+1)} },
+    { MODKEY,              XK_k,               focusstack,         {.i = INC(-1)} },
+    { MODKEY | ShiftMask,  XK_k,               pushstack,          {.i = INC(-1)} },
     // { MODKEY,              XK_x,               spawn,              {.v = (const char *[]){NULL}} },
     // { MODKEY | ShiftMask,  XK_x,               spawn,              {.v = (const char *[]){NULL}} },
-    // { MODKEY,              XK_c,               spawn,              {.v = (const char *[]){NULL}} },
-    // { MODKEY | ShiftMask,  XK_c,               spawn,              {.v = (const char *[]){NULL}} },
-    /* XK_v is bound in STACKKEYS */
     { MODKEY,              XK_b,               togglebar,          {0} },
     // { MODKEY | ShiftMask,  XK_b,               spawn,              {.v = (const char *[]){NULL}} },
-    { MODKEY,              XK_n,               spawn,              {.v = (const char *[]){TERMINAL, "-e", "nvim", "-c", "VimwikiIndex", NULL}} },
-    // { MODKEY | ShiftMask,  XK_n,               spawn,              {.v = (const char *[]){NULL}} },
-    // { MODKEY,              XK_m,               spawn,              {.v = (const char *[]){NULL}} },
+    { MODKEY,              XK_m,               spawn,              {.v = (const char *[]){BROWSER, "listen.tidal.de", NULL }} },
     { MODKEY | ShiftMask,  XK_m,               spawn,              SHCMD("pamixer -t; kill -44 $(pidof dwmblocks)") },
-    { MODKEY,              XK_comma,           spawn,              {.v = (const char *[]){"playerctl", "-p", PLAYER, "previous", NULL}} },
-    { MODKEY | ShiftMask,  XK_comma,           spawn,              {.v = (const char *[]){"playerctl", "-p", PLAYER, "position", "0", NULL}} },
-    { MODKEY,              XK_period,          spawn,              {.v = (const char *[]){"playerctl", "-p", PLAYER, "previous", NULL}} },
-    // { MODKEY | ShiftMask,  XK_period,          spawn,              {.v = (const char *[]){NULL}} },
-    // { MODKEY,              XK_minus,           spawn,              {.v = (const char *[]){NULL}} },
-    // { MODKEY | ShiftMask,  XK_minus,           spawn,              {.v = (const char *[]){NULL}} },
+    { MODKEY,              XK_w,               spawn,              {.v = (const char *[]){"ferdium", NULL}} },
+    // { MODKEY | ShiftMask,  XK_w,               spawn,              {.v = (const char *[]){NULL}} },
+    { MODKEY,              XK_v,               focusstack,         {.i = PREVSEL} },
+    { MODKEY | ShiftMask,  XK_v,               pushstack,          {.i = PREVSEL} },
+    // { MODKEY,              XK_z,               spawn,              {.v = (const char *[]){NULL}} },
+    // { MODKEY | ShiftMask,  XK_z,               spawn,              {.v = (const char *[]){NULL}} },
     { MODKEY,              XK_space,           zoom,               {0} },
     { MODKEY | ShiftMask,  XK_space,           togglefloating,     {0} },
     { 0,                   XK_Print,           spawn,              SHCMD("maim ~/Photos/Screenshots/pic-full-$(date '+%y%m%d-%H%M-%S').png") },
@@ -244,33 +270,33 @@ static const Key keys[] = {
     // { MODKEY | ShiftMask,  XK_Insert,          spawn,              {.v = (const char *[]){NULL}} },
     // { MODKEY,              XK_Home,            spawn,              {.v = (const char *[]){NULL}} },
     // { MODKEY | ShiftMask,  XK_Home,            spawn,              {.v = (const char *[]){NULL}} },
+    // { MODKEY,              XK_Page_Up,         spawn,              {.v = (const char *[]){NULL}} },
+    // { MODKEY | ShiftMask,  XK_Page_Up,         spawn,              {.v = (const char *[]){NULL}} },
     { MODKEY,              XK_Delete,          spawn,              {.v = (const char *[]){"dmenurecord", "kill", NULL}} },
     // { MODKEY | ShiftMask,  XK_Delete,          spawn,              {.v = (const char *[]){NULL}} },
     // { MODKEY,              XK_End,             spawn,              {.v = (const char *[]){NULL}} },
     { MODKEY | ShiftMask,  XK_End,             quit,               {0} },
-    // { MODKEY,              XK_Page_Up,         spawn,              {.v = (const char *[]){NULL}} },
-    // { MODKEY | ShiftMask,  XK_Page_Up,         spawn,              {.v = (const char *[]){NULL}} },
     // { MODKEY,              XK_Page_Down,       spawn,              {.v = (const char *[]){NULL}} },
     // { MODKEY | ShiftMask,  XK_Page_Down,       spawn,              {.v = (const char *[]){NULL}} },
-    { MODKEY,              XK_Left,            focusmon,           {.i = -1} },
-    { MODKEY | ShiftMask,  XK_Left,            tagmon,             {.i = -1} },
-    { MODKEY,              XK_Right,           focusmon,           {.i = +1} },
-    { MODKEY | ShiftMask,  XK_Right,           tagmon,             {.i = +1} },
-    // { MODKEY,              XK_Up,              spawn,              {.v = (const char *[]){NULL}} },
-    // { MODKEY | ShiftMask,  XK_Up,              spawn,              {.v = (const char *[]){NULL}} },
-    // { MODKEY,              XK_Down,            spawn,              {.v = (const char *[]){NULL}} },
-    // { MODKEY | ShiftMask,  XK_Down,            spawn,              {.v = (const char *[]){NULL}} },
+    { MODKEY,              XK_Left,           spawn,              {.v = (const char *[]){"playerctl", "-p", PLAYERCTL, "previous", NULL}} },
+    { MODKEY | ShiftMask,  XK_Left,           spawn,              {.v = (const char *[]){"playerctl", "-p", PLAYERCTL, "position", "0", NULL}} },
+    { MODKEY,              XK_Right,          spawn,              {.v = (const char *[]){"playerctl", "-p", PLAYERCTL, "next", NULL}} },
+    // { MODKEY | ShiftMask,  XK_Right,          spawn,              {.v = (const char *[]){NULL}} },
+    { MODKEY,              XK_Up,              spawn,              SHCMD("pamixer --allow-boost -i 5; pkill -RTMIN+10 dwmblocks") },
+    { MODKEY | ShiftMask,  XK_Up,              spawn,              SHCMD("pamixer --allow-boost -i 20; pkill -RTMIN+10 dwmblocks") },
+    { MODKEY,              XK_Down,            spawn,              SHCMD("pamixer --allow-boost -d 5; pkill -RTMIN+10 dwmblocks") },
+    { MODKEY | ShiftMask,  XK_Down,            spawn,              SHCMD("pamixer --allow-boost -d 20; pkill -RTMIN+10 dwmblocks") },
 
     { 0, XF86XK_AudioMute,                     spawn,              SHCMD("pamixer -t; pkill -RTMIN+10 dwmblocks") },
     { 0, XF86XK_AudioRaiseVolume,              spawn,              SHCMD("pamixer --allow-boost -i 5; pkill -RTMIN+10 dwmblocks") },
     { 0, XF86XK_AudioLowerVolume,              spawn,              SHCMD("pamixer --allow-boost -d 5; pkill -RTMIN+10 dwmblocks") },
-    { 0, XF86XK_AudioPrev,                     spawn,              {.v = (const char *[]){"playerctl", "-p", PLAYER, "previous", NULL}} },
-    { 0, XF86XK_AudioNext,                     spawn,              {.v = (const char *[]){"playerctl", "-p", PLAYER, "next", NULL}} },
-    { 0, XF86XK_AudioPause,                    spawn,              {.v = (const char *[]){"playerctl", "-p", PLAYER, "pause", NULL}} },
-    { 0, XF86XK_AudioPlay,                     spawn,              {.v = (const char *[]){"playerctl", "-p", PLAYER, "play", NULL}} },
-    { 0, XF86XK_AudioStop,                     spawn,              {.v = (const char *[]){"playerctl", "-p", PLAYER, "stop", NULL}} },
-    { 0, XF86XK_AudioRewind,                   spawn,              {.v = (const char *[]){"playerctl", "-p", PLAYER, "position", "10-", NULL}} },
-    { 0, XF86XK_AudioForward,                  spawn,              {.v = (const char *[]){"playerctl", "-p", PLAYER, "position", "10+", NULL}} },
+    { 0, XF86XK_AudioPrev,                     spawn,              {.v = (const char *[]){"playerctl", "-p", PLAYERCTL, "previous", NULL}} },
+    { 0, XF86XK_AudioNext,                     spawn,              {.v = (const char *[]){"playerctl", "-p", PLAYERCTL, "next", NULL}} },
+    { 0, XF86XK_AudioPause,                    spawn,              {.v = (const char *[]){"playerctl", "-p", PLAYERCTL, "pause", NULL}} },
+    { 0, XF86XK_AudioPlay,                     spawn,              {.v = (const char *[]){"playerctl", "-p", PLAYERCTL, "play", NULL}} },
+    { 0, XF86XK_AudioStop,                     spawn,              {.v = (const char *[]){"playerctl", "-p", PLAYERCTL, "stop", NULL}} },
+    { 0, XF86XK_AudioRewind,                   spawn,              {.v = (const char *[]){"playerctl", "-p", PLAYERCTL, "position", "10-", NULL}} },
+    { 0, XF86XK_AudioForward,                  spawn,              {.v = (const char *[]){"playerctl", "-p", PLAYERCTL, "position", "10+", NULL}} },
     // { 0, XF86XK_AudioMedia,                    spawn,              {.v = (const char *[]){NULL}} },
     { 0, XF86XK_AudioMicMute,                  spawn,              SHCMD("pactl set-source-mute @DEFAULT_SOURCE@ toggle") },
     { 0, XF86XK_PowerOff,                      spawn,              {.v = (const char *[]){"sysact", NULL}} },

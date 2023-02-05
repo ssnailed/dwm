@@ -1,6 +1,0 @@
- TODO: https://github.com/szatanjl/dwm/commit/1529909466206016f2101457bbf37c67195714c8
- TODO: continue reworking keybinds, add layout binds, remove binds related to gaps, add stack binds
- TODO: add remaining systray vars to config.h
-
- FIX: barschemes needs constants as colors
- FIX: remove dmenumon/dmenucmd references in dwm.c or come up with a better solution
