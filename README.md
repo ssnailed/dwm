@@ -10,7 +10,7 @@ Mod|,|Focus previous monitor on stack
 Mod Shift|,|Move active client to previous monitor on stack
 Mod|.|Focus next monitor on stack
 Mod Shift|.|Move active client to next monitor on stack
-Mod|p|Toggle fullscreen on active client
+Mod|f|Toggle fullscreen on active client
 Mod|j|Focus next client on stack
 Mod Shift|j|Move active client down stack
 Mod|k|Focus previous client on stack
@@ -39,13 +39,13 @@ Mod Shift|minus|Switch to horizontal bottom stack layout
 # Spawn Programs
 Modifier(s)|Key|Action
 :--|:--|:--
-Mod|t|Spawn launcher menu
+Mod|t|Spawn a web browser
+Mod Shift|t|Spawn an NMTUI (Network Manager) window
 Mod|o|Toggle HTOP (Process Manager) scratchpad
 Mod Shift|o|Spawn an HTOP (Process Manager) window
 Mod|e|Toggle LF (File Manager) scratchpad
 Mod Shift|e|Spawn an LF (File Manager) window
-Mod|u|Spawn a web browser
-Mod Shift|u|Spawn an NMTUI (Network Manager) window
+Mod|u|Spawn launcher menu
 Mod|backslash|Toggle calculator scratchpad
 Mod|Return|Spawn a terminal window
 Mod Shift|Return|Spawn a terminal window in working directory of active client
@@ -67,6 +67,7 @@ Mod Shift|Up|Increase volume by 20
 Mod|Down|Decrease volume by 5
 Mod Shift|Down|Decrease volume by 20
 Mod Shift|m|Mute all sound
+Mod|p|Play or pause the last active player
 
 # Misc.
 Modifier(s)|Key|Action
