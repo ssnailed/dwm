@@ -5,12 +5,12 @@ Mod|0|Show all tags
 Mod Shift|0|Make a client sticky
 Mod|Tab|Focus first client on stack
 Mod Shift|Tab|Move active client to top of stack
-Mod|'|Kill active client
 Mod|,|Focus previous monitor on stack
 Mod Shift|,|Move active client to previous monitor on stack
 Mod|.|Focus next monitor on stack
 Mod Shift|.|Move active client to next monitor on stack
 Mod|f|Toggle fullscreen on active client
+Mod|q|Kill active client
 Mod|j|Focus next client on stack
 Mod Shift|j|Move active client down stack
 Mod|k|Focus previous client on stack
