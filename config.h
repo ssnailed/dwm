@@ -20,55 +20,25 @@ static const char *fonts[] = {
     "monospace:pixelsize=30",
 };
 
-static char color0[]     = "#000000";
-static char color1[]     = "#7f0000";
-static char color2[]     = "#007f00";
-static char color3[]     = "#7f7f00";
-static char color4[]     = "#00007f";
-static char color5[]     = "#7f007f";
-static char color6[]     = "#007f7f";
-static char color7[]     = "#cccccc";
-static char color8[]     = "#333333"; 
-static char color9[]     = "#ff0000"; 
-static char color10[]    = "#00ff00"; 
-static char color11[]    = "#ffff00"; 
-static char color12[]    = "#0000ff"; 
-static char color13[]    = "#ff00ff"; 
-static char color14[]    = "#00ffff"; 
-static char color15[]    = "#ffffff";
-static char bordernorm[] = "#222222";
-static char bordersel[]  = "#444444";
-
-static char *barschemes[][3]        = {
-    /*                    fg       bg       border   */
-    [SchemeNorm]      = { color15, color0, bordernorm },
-    [SchemeSel]       = { color15, color4, bordersel },
-    [SchemeStatus]    = { color7,  color0, "#000000" }, // Statusbar right
-    [SchemeTagsSel]   = { color0,  color4, "#000000" }, // Tagbar left selected
-    [SchemeTagsNorm]  = { color7,  color0, "#000000" }, // Tagbar left unselected
-    [SchemeInfoSel]   = { color7,  color0, "#000000" }, // infobar middle selected
-    [SchemeInfoNorm]  = { color7,  color0, "#000000" }, // infobar middle unselected
+static const char colors[][7] = {
+    [0]  = "#15161E", [1]  = "#f7768e", [2]  = "#9ece6a", [3]  = "#e0af68",
+    [4]  = "#7aa2f7", [5]  = "#bb9af7", [6]  = "#7dcfff", [7]  = "#a9b1d6",
+    [8]  = "#414868", [9]  = "#f7768e", [10] = "#9ece6a", [11] = "#e0af68",
+    [12] = "#7aa2f7", [13] = "#bb9af7", [14] = "#7dcfff", [15] = "#c0caf5",
+    /* Extra Colors (not accessible with SGR escapes) */
+    [16] = "#383c4a", [17] = "#7aa2f7", 
 };
 
-// static const char *colors[] = {
-//     [0]  = "#000000", [1]  = "#7f0000", [2]  = "#007f00", [3]  = "#7f7f00",
-//     [4]  = "#00007f", [5]  = "#7f007f", [6]  = "#007f7f", [7]  = "#cccccc",
-//     [8]  = "#333333", [9]  = "#ff0000", [10] = "#00ff00", [11] = "#ffff00",
-//     [12] = "#0000ff", [13] = "#ff00ff", [14] = "#00ffff", [15] = "#ffffff",
-//     /* Extra Colors (not accessible with SGR escapes) */
-//     [16] = "#222222", [17] = "#444444", 
-// };
-//
-// static char *barschemes[][3] = {
-//     /*                  fg          bg         border */
-//     [SchemeNorm]     = {colors[15], colors[0], colors[16]},
-//     [SchemeSel]      = {colors[15], colors[4], colors[17]},
-//     [SchemeStatus]   = {colors[7],  colors[0], "#000000"}, // Statusbar right
-//     [SchemeTagsSel]  = {colors[0],  colors[4], "#000000"}, // Tagbar left selected
-//     [SchemeTagsNorm] = {colors[7],  colors[0], "#000000"}, // Tagbar left unselected
-//     [SchemeInfoSel]  = {colors[7],  colors[0], "#000000"}, // infobar middle selected
-//     [SchemeInfoNorm] = {colors[7],  colors[0], "#000000"}, // infobar middle unselected
-// };
+static const char *barschemes[7][3] = {
+    /*                  fg          bg         border */
+    [SchemeNorm]     = {colors[15], colors[0], colors[16]},
+    [SchemeSel]      = {colors[15], colors[4], colors[17]},
+    [SchemeStatus]   = {colors[7],  colors[0], "#000000"}, // Statusbar right
+    [SchemeTagsSel]  = {colors[0],  colors[4], "#000000"}, // Tagbar left selected
+    [SchemeTagsNorm] = {colors[7],  colors[0], "#000000"}, // Tagbar left unselected
+    [SchemeInfoSel]  = {colors[7],  colors[0], "#000000"}, // infobar middle selected
+    [SchemeInfoNorm] = {colors[7],  colors[0], "#000000"}, // infobar middle unselected
+};
 
 /* tagging */
 static const char *tags[] = {"1", "2", "3", "4", "5", "6", "7", "8", "9"};
@@ -127,28 +97,6 @@ static const char *splf[] = { "l", TERMINAL, "--name", "splf", "-d", "~", "-e", 
 static const char *sphtop[] = { "h", TERMINAL, "--name", "sphtop", "-e", "htop", NULL };
 static const char *spmix[] = { "m", TERMINAL "--name", "spmix", "-e", "pulsemixer" };
 static const char *sphelp[] = { "n", TERMINAL, "--name", "sphelp", "-e", "/bin/sh", "-c", "lowdown -Tterm /usr/local/share/dwm/dwm.md | less" };
-
-/* Xresources preferences to load at startup */
-ResourcePref resources[] = {
-    { "color0",     STRING, &color0 },
-    { "color1",     STRING, &color1 },
-    { "color2",     STRING, &color2 },
-    { "color3",     STRING, &color3 },
-    { "color4",     STRING, &color4 },
-    { "color5",     STRING, &color5 },
-    { "color6",     STRING, &color6 },
-    { "color7",     STRING, &color7 },
-    { "color8",     STRING, &color8 },
-    { "color9",     STRING, &color9 },
-    { "color10",    STRING, &color10 },
-    { "color11",    STRING, &color11 },
-    { "color12",    STRING, &color12 },
-    { "color13",    STRING, &color13 },
-    { "color14",    STRING, &color14 },
-    { "color15",    STRING, &color15 },
-    { "bordernorm", STRING, &bordernorm },
-    { "bordersel",  STRING, &bordersel },
-};
 
 #include <X11/XF86keysym.h>
 
@@ -219,10 +167,10 @@ static const Key keys[] = {
     { MODKEY | ShiftMask,  XK_e,               spawn,              SHCMD(TERMINAL "-e $SHELL -c \"lf; $SHELL\"")},
     { MODKEY,              XK_u,               spawn,              {.v = (const char *[]){"dmenu_run", NULL}} },
     // { MODKEY | ShiftMask,  XK_u,               spawn,              {.v = (const char *[]){NULL}} },
-    // { MODKEY,              XK_i,               spawn,              {.v = (const char *[]){NULL}} },
-    // { MODKEY | ShiftMask,  XK_i,               spawn,              {.v = (const char *[]){NULL}} },
-    // { MODKEY,              XK_d,               spawn,              {.v = (const char *[]){NULL}} },
-    // { MODKEY | ShiftMask,  XK_d,               spawn,              {.v = (const char *[]){NULL}} },
+    { MODKEY,              XK_i,               spawn,              {.v = (const char *[]){"dunstctl", "close", NULL}} },
+    { MODKEY | ShiftMask,  XK_i,               spawn,              {.v = (const char *[]){"dunstctl", "history-pop", NULL}} },
+    { MODKEY,              XK_d,               spawn,              {.v = (const char *[]){"dunstctl", "context", NULL}} },
+    { MODKEY | ShiftMask,  XK_d,               spawn,              {.v = (const char *[]){"dunstctl", "action", "0", NULL}} },
     { MODKEY,              XK_h,               setmfact,           {.f = -0.05} },
     // { MODKEY | ShiftMask,  XK_h,               spawn,              {.v = (const char *[]){NULL}} },
     { MODKEY,              XK_t,               spawn,              {.v = (const char *[]){BROWSER, NULL}} },

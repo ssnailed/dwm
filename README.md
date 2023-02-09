@@ -55,6 +55,10 @@ Mod|w|Spawn Ferdium
 # System
 Modifier(s)|Key|Action
 :--|:--|:--
+Mod|i|Close the topmost notification
+Mod Shift|i|Bring back the last closed notification
+Mod|d|Open the context menu for the topmost notification
+Mod Shift|d|Run the default action for the topmost notification
 Mod|F3|Spawn volume panel
 Mod|F9|Spawn mounting menu
 Mod|F10|Spawn unmounting menu
