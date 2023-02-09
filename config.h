@@ -20,24 +20,34 @@ static const char *fonts[] = {
     "monospace:pixelsize=30",
 };
 
-static const char colors[][7] = {
-    [0]  = "#15161E", [1]  = "#f7768e", [2]  = "#9ece6a", [3]  = "#e0af68",
-    [4]  = "#7aa2f7", [5]  = "#bb9af7", [6]  = "#7dcfff", [7]  = "#a9b1d6",
-    [8]  = "#414868", [9]  = "#f7768e", [10] = "#9ece6a", [11] = "#e0af68",
-    [12] = "#7aa2f7", [13] = "#bb9af7", [14] = "#7dcfff", [15] = "#c0caf5",
-    /* Extra Colors (not accessible with SGR escapes) */
-    [16] = "#383c4a", [17] = "#7aa2f7", 
-};
+static const char color0[]     = "#15161E";
+static const char color1[]     = "#f7768e";
+static const char color2[]     = "#9ece6a";
+static const char color3[]     = "#e0af68";
+static const char color4[]     = "#7aa2f7";
+static const char color5[]     = "#bb9af7";
+static const char color6[]     = "#7dcfff";
+static const char color7[]     = "#a9b1d6";
+static const char color8[]     = "#414868"; 
+static const char color9[]     = "#f7768e"; 
+static const char color10[]    = "#9ece6a"; 
+static const char color11[]    = "#e0af68"; 
+static const char color12[]    = "#7aa2f7"; 
+static const char color13[]    = "#bb9af7"; 
+static const char color14[]    = "#7dcfff"; 
+static const char color15[]    = "#c0caf5";
+static const char bordernorm[] = "#383c4a";
+static const char bordersel[]  = "#7aa2f7";
 
-static const char *barschemes[7][3] = {
-    /*                  fg          bg         border */
-    [SchemeNorm]     = {colors[15], colors[0], colors[16]},
-    [SchemeSel]      = {colors[15], colors[4], colors[17]},
-    [SchemeStatus]   = {colors[7],  colors[0], "#000000"}, // Statusbar right
-    [SchemeTagsSel]  = {colors[0],  colors[4], "#000000"}, // Tagbar left selected
-    [SchemeTagsNorm] = {colors[7],  colors[0], "#000000"}, // Tagbar left unselected
-    [SchemeInfoSel]  = {colors[7],  colors[0], "#000000"}, // infobar middle selected
-    [SchemeInfoNorm] = {colors[7],  colors[0], "#000000"}, // infobar middle unselected
+static const char *barschemes[][3]        = {
+    /*                    fg       bg       border   */
+    [SchemeNorm]      = { color15, color0, bordernorm },
+    [SchemeSel]       = { color15, color4, bordersel },
+    [SchemeStatus]    = { color7,  color0, "#000000" }, // Statusbar right
+    [SchemeTagsSel]   = { color0,  color4, "#000000" }, // Tagbar left selected
+    [SchemeTagsNorm]  = { color7,  color0, "#000000" }, // Tagbar left unselected
+    [SchemeInfoSel]   = { color7,  color0, "#000000" }, // infobar middle selected
+    [SchemeInfoNorm]  = { color7,  color0, "#000000" }, // infobar middle unselected
 };
 
 /* tagging */
