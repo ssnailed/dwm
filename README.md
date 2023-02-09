@@ -23,10 +23,10 @@ Mod Shift|space|Make active client float
 # Layout Control
 Modifier(s)|Key|Action
 :--|:--|:--
-Mod|c|Decrease number of master clients
-Mod Shift|c|Reset number of master clients
-Mod|r|Increase number of master clients 
-Mod Shift|r|Reset number of master clients 
+Mod|c|Increase number of master clients 
+Mod Shift|c|Reset number of master clients 
+Mod|r|Decrease number of master clients
+Mod Shift|r|Reset number of master clients
 Mod|l|Increase master area size
 Mod|h|Decrease master area size
 Mod|n|Switch to tile layout

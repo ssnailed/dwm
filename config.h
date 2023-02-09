@@ -125,7 +125,7 @@ static const Layout layouts[] = {
 static const char *spqalc[] = { "q", "qalculate-gtk", NULL };
 static const char *splf[] = { "l", TERMINAL, "--name", "splf", "-d", "~", "-e", "lf", NULL };
 static const char *sphtop[] = { "h", TERMINAL, "--name", "sphtop", "-e", "htop", NULL };
-static const char *spmix[] = { "m", "/bin/sh", "-c", TERMINAL "--name spmix -e pulsemixer; pkill -RTMIN+10 dwmblocks" };
+static const char *spmix[] = { "m", TERMINAL "--name", "spmix", "-e", "pulsemixer" };
 static const char *sphelp[] = { "n", TERMINAL, "--name", "sphelp", "-e", "/bin/sh", "-c", "lowdown -Tterm /usr/local/share/dwm/dwm.md | less" };
 
 /* Xresources preferences to load at startup */
@@ -201,9 +201,9 @@ static const Key keys[] = {
     // { MODKEY | ShiftMask,  XK_f,               setlayout,          {.v = (const char *[]){NULL}} },
     // { MODKEY,              XK_g,               spawn,              {.v = (const char *[]){NULL}} },
     // { MODKEY | ShiftMask,  XK_g,               spawn,              {.v = (const char *[]){NULL}} },
-    { MODKEY,              XK_c,               incnmaster,         {.i = -1} },
+    { MODKEY,              XK_c,               incnmaster,         {.i = +1} },
     { MODKEY | ShiftMask,  XK_c,               resetnmaster,       {0} },
-    { MODKEY,              XK_r,               incnmaster,         {.i = +1} },
+    { MODKEY,              XK_r,               incnmaster,         {.i = -1} },
     { MODKEY | ShiftMask,  XK_r,               resetnmaster,       {0} },
     { MODKEY,              XK_l,               setmfact,           {.f = +0.05} },
     // { MODKEY | ShiftMask,  XK_l,               spawn,              {.v = (const char *[]){NULL}} },
@@ -250,7 +250,7 @@ static const Key keys[] = {
     { MODKEY,              XK_b,               togglebar,          {0} },
     // { MODKEY | ShiftMask,  XK_b,               spawn,              {.v = (const char *[]){NULL}} },
     { MODKEY,              XK_m,               spawn,              {.v = (const char *[]){BROWSER, "listen.tidal.com", NULL }} },
-    { MODKEY | ShiftMask,  XK_m,               spawn,              SHCMD("pamixer -t; kill -44 $(pidof dwmblocks)") },
+    { MODKEY | ShiftMask,  XK_m,               spawn,              {.v = (const char *[]){"pamixer-notify", "-t", NULL}} },
     { MODKEY,              XK_w,               spawn,              {.v = (const char *[]){"ferdium", NULL}} },
     // { MODKEY | ShiftMask,  XK_w,               spawn,              {.v = (const char *[]){NULL}} },
     { MODKEY,              XK_v,               focusstack,         {.i = PREVSEL} },
@@ -283,14 +283,14 @@ static const Key keys[] = {
     { MODKEY | ShiftMask,  XK_Left,            spawn,              {.v = (const char *[]){"playerctl", "-p", PLAYERCTL, "position", "0", NULL}} },
     { MODKEY,              XK_Right,           spawn,              {.v = (const char *[]){"playerctl", "-p", PLAYERCTL, "next", NULL}} },
     // { MODKEY | ShiftMask,  XK_Right,          spawn,              {.v = (const char *[]){NULL}} },
-    { MODKEY,              XK_Up,              spawn,              SHCMD("pamixer --allow-boost -i 5; pkill -RTMIN+10 dwmblocks") },
-    { MODKEY | ShiftMask,  XK_Up,              spawn,              SHCMD("pamixer --allow-boost -i 20; pkill -RTMIN+10 dwmblocks") },
-    { MODKEY,              XK_Down,            spawn,              SHCMD("pamixer --allow-boost -d 5; pkill -RTMIN+10 dwmblocks") },
-    { MODKEY | ShiftMask,  XK_Down,            spawn,              SHCMD("pamixer --allow-boost -d 20; pkill -RTMIN+10 dwmblocks") },
+    { MODKEY,              XK_Up,              spawn,              {.v = (const char *[]){"pamixer-notify", "--allow-boost", "-i", "5", NULL}} },
+    { MODKEY | ShiftMask,  XK_Up,              spawn,              {.v = (const char *[]){"pamixer-notify", "--allow-boost", "-i", "20", NULL}} },
+    { MODKEY,              XK_Down,            spawn,              {.v = (const char *[]){"pamixer-notify", "--allow-boost", "-d", "5", NULL}} },
+    { MODKEY | ShiftMask,  XK_Down,            spawn,              {.v = (const char *[]){"pamixer-notify", "--allow-boost", "-d", "20", NULL}} },
 
-    { 0, XF86XK_AudioMute,                     spawn,              SHCMD("pamixer -t; pkill -RTMIN+10 dwmblocks") },
-    { 0, XF86XK_AudioRaiseVolume,              spawn,              SHCMD("pamixer --allow-boost -i 5; pkill -RTMIN+10 dwmblocks") },
-    { 0, XF86XK_AudioLowerVolume,              spawn,              SHCMD("pamixer --allow-boost -d 5; pkill -RTMIN+10 dwmblocks") },
+    { 0, XF86XK_AudioMute,                     spawn,              {.v = (const char *[]){"pamixer-notify", "-t", NULL}} },
+    { 0, XF86XK_AudioRaiseVolume,              spawn,              {.v = (const char *[]){"pamixer-notify", "--allow-boost", "-i", "5", NULL}} },
+    { 0, XF86XK_AudioLowerVolume,              spawn,              {.v = (const char *[]){"pamixer-notify", "--allow-boost", "-d", "5", NULL}} },
     { 0, XF86XK_AudioPrev,                     spawn,              {.v = (const char *[]){"playerctl", "-p", PLAYERCTL, "previous", NULL}} },
     { 0, XF86XK_AudioNext,                     spawn,              {.v = (const char *[]){"playerctl", "-p", PLAYERCTL, "next", NULL}} },
     { 0, XF86XK_AudioPause,                    spawn,              {.v = (const char *[]){"playerctl", "-p", PLAYERCTL, "pause", NULL}} },
@@ -299,7 +299,7 @@ static const Key keys[] = {
     { 0, XF86XK_AudioRewind,                   spawn,              {.v = (const char *[]){"playerctl", "-p", PLAYERCTL, "position", "10-", NULL}} },
     { 0, XF86XK_AudioForward,                  spawn,              {.v = (const char *[]){"playerctl", "-p", PLAYERCTL, "position", "10+", NULL}} },
     // { 0, XF86XK_AudioMedia,                    spawn,              {.v = (const char *[]){NULL}} },
-    { 0, XF86XK_AudioMicMute,                  spawn,              SHCMD("pactl set-source-mute @DEFAULT_SOURCE@ toggle") },
+    { 0, XF86XK_AudioMicMute,                  spawn,              {.v = (const char *[]){"pactl set-source-mute @DEFAULT_SOURCE@ toggle", NULL}} },
     { 0, XF86XK_PowerOff,                      spawn,              {.v = (const char *[]){"sysact", NULL}} },
     { 0, XF86XK_Calculator,                    spawn,              {.v = (const char *[]){TERMINAL, "-e", "bc", "-l", NULL}} },
     { 0, XF86XK_Sleep,                         spawn,              {.v = (const char *[]){"sudo", "-A", "zzz", NULL}} },
