@@ -78,7 +78,8 @@ Modifier(s)|Key|Action
 :--|:--|:--
 Mod|b|Toggle status bar
 Mod|F1|Show this help manual
-Mod|\`|Spawn emoji/fontawesome picker
+Mod|\`|Spawn emoji/fontawesome picker, immediately paste
+Mod Shift|\`|Spawn emoji/fontawesome picker, copy to clipboard
 ||Print|Make screenshot
 Shift|Print|Spawn screenshot menu
 Mod|Print|Spawn recording menu

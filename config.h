@@ -124,8 +124,8 @@ static const Key keys[] = {
     { MODKEY,              XK_F10,             spawn,              {.v = (const char *[]){"dmenuumount", NULL}} },
     { MODKEY,              XK_F11,             spawn,              {.v = (const char *[]){"displayselect", NULL}} },
     { MODKEY,              XK_F12,             spawn,              {.v = (const char *[]){"remaps", NULL}} },
-    { MODKEY,              XK_grave,           spawn,              {.v = (const char *[]){"dmenuunicode", NULL}} },
-    // { MODKEY | ShiftMask,  XK_grave,           spawn,              {.v = (const char *[]){NULL}} },
+    { MODKEY,              XK_grave,           spawn,              {.v = (const char *[]){"dmenuunicode", "--nocopy", NULL}} },
+    { MODKEY | ShiftMask,  XK_grave,           spawn,              {.v = (const char *[]){"dmenuunicode", NULL}} },
     TAGKEYS(               XK_1,                                   0)
     TAGKEYS(               XK_2,                                   1)
     TAGKEYS(               XK_3,                                   2)
